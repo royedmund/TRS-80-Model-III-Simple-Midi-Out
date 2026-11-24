@@ -83,6 +83,7 @@ The native Z80 player streams compatible format-0 SMF files from disk. LDOS 5.3.
 - [MIDIPLAY.CMD](player/MIDIPLAY.CMD) — 1,374-byte native executable
 - [MIDIPLAY.ASM](player/MIDIPLAY.ASM) — Z80 source
 - [NYPLAY.BAS](player/NYPLAY.BAS) — BASIC player for converted data
+- [SPLIT27.MID](player/SPLIT27.MID) — all 27 two-voice Bass Split combinations ([instructions](player/README.md#two-voice-bass-split-mode-emt-10))
 - [VOICES.MID](player/VOICES.MID) — original 12-voice EMT-10 demo
 - [PIANOBRS.MID](player/PIANOBRS.MID) — original 38.4-second Piano 1 / Brass test, with [generator](player/make_piano_brass.py)
 - [convert_midi.py](player/convert_midi.py) — desktop conversion utility

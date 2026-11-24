@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert an SMF to format 0, or make an EMT-10 Piano 1/Upright Bass demo.
+"""Convert an SMF to format 0, or make an EMT-10 two-voice Bass Split arrangement.
 Requires mido (python -m pip install mido). Never changes the input file.
 """
 import argparse, collections, heapq
@@ -12,7 +12,10 @@ def merge(src):
     dst.tracks.append(mido.merge_tracks(src.tracks))
     return dst
 
-def adapt(src, bass_tracks, piano_tracks):
+def adapt(src, bass_tracks, piano_tracks, bass_voice=0, upper_voice=0):
+    if not 0 <= bass_voice <= 2 or not 0 <= upper_voice <= 8:
+        raise ValueError('Bass voice must be 0-2; upper voice must be 0-8')
+    program = 48 + 16*bass_voice + upper_voice
     # All timing comes from the supplied file's merged tempo map.
     if src.type==2 or src.ticks_per_beat<=0: raise ValueError('Expected synchronous PPQN MIDI')
     events=[]
@@ -24,7 +27,7 @@ def adapt(src, bass_tracks, piano_tracks):
                 events.append((tick,ti,j,msg))
     events.sort(key=lambda x:x[:3]); last=0; elapsed=0.; tempo=500000
     # Each record is (absolute ms, status, data1, data2 or -1).
-    out=[(0,0xb0,64,0),(0,0xb0,123,0),(0,0xc0,48,-1)]
+    out=[(0,0xb0,64,0),(0,0xb0,123,0),(0,0xc0,program,-1)]
     # Each sounding note has an ID, to avoid old note-offs silencing a newer note.
     live={}; queues=collections.defaultdict(collections.deque); serial=0; steals=0
     def emit(ms,st,n,v):out.append((ms,st,n,v))
@@ -79,12 +82,14 @@ def check(path):
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('input',type=Path);p.add_argument('output',type=Path)
     p.add_argument('--emt10',action='store_true');p.add_argument('--bass',type=int,nargs='+',default=[1]);p.add_argument('--piano',type=int,nargs='+',default=[2,3]);p.add_argument('--basic-data',type=Path)
+    p.add_argument('--bass-voice', type=int, choices=range(3), default=0, help='0 upright, 1 electric, 2 slap')
+    p.add_argument('--upper-voice', type=int, choices=range(9), default=0, help='EMT-10 program 0-8')
     a=p.parse_args();src=mido.MidiFile(a.input)
     if a.input.resolve()==a.output.resolve():p.error('Output must not overwrite input')
     if a.emt10:
         if any(i<0 or i>=len(src.tracks) for i in a.bass+a.piano):p.error('Track index out of range')
         if set(a.bass)&set(a.piano):p.error('Bass and piano tracks must not overlap')
-        dst,events=adapt(src,a.bass,a.piano)
+        dst,events=adapt(src,a.bass,a.piano,a.bass_voice,a.upper_voice)
         if a.basic_data:
             # LDOS text records: absolute milliseconds, status, data1, data2.
             a.basic_data.write_bytes(('\r'.join(','.join(map(str,x)) for x in events)+'\r-1,0,0,0\r').encode('ascii'))

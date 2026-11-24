@@ -24,6 +24,30 @@ The original piece and its [generator](make_piano_brass.py) are MIT-licensed. To
 
 Mock-tested using the assembled CMD: all 1,028 expected channel-message bytes matched at both 25 Hz and 30 Hz, followed by the player's 192-byte cleanup. Audio playback and real hardware remain untested.
 
+## Two-voice Bass Split mode (EMT-10)
+
+The native MIDIPLAY.CMD already sends program changes and overlapping notes. A single EMT-10 supports one bass voice below MIDI note 55, and one of its nine other voices at note 55 or above. It allocates two bass and six upper voices. Piano + Brass without a bass voice is not supported on one module.
+
+Program numbers (zero-based MIDI): 48 + 16 * bass_voice + upper_voice. Bass index 0 = Upright, 1 = Electric, 2 = Slap; upper index 0–8 is the native non-bass voice number. See Yamaha EMT-10 user's guide printed pages 6 and 8. The demo uses the first listed program number for each combination.
+
+Run the original MIT-licensed [SPLIT27.MID](SPLIT27.MID) in LDOS:
+
+```
+MIDIPLAY SPLIT27/MID:0
+```
+
+All 27 pairs play for four seconds each (108 seconds total), grouped by bass type then upper voice. Each pair plays overlapping bass and upper notes. The file is format 0, channel 1, 96 PPQN, 120 BPM, 6178 bytes. Copy in binary mode. Regenerate using `python make_split_demo.py` (standard library only).
+
+MIDI byte-stream structure validated: all 27 unique program changes, overlap in every pair, 648 matched note-on/off pairs, max 1 held bass and 3 upper notes; no held notes at patch changes. Real hardware and Z80 execution of this new demo have not been tested.
+
+To convert your own two-part MIDI file, choose zero-based tracks and voices. Example: Electric Bass + Brass:
+
+```
+python convert_midi.py INPUT.MID OUTPUT.MID --emt10 --bass 1 --piano 2 --bass-voice 1 --upper-voice 7
+```
+
+The existing `--piano` option names the upper-part tracks regardless of chosen voice. The converter folds notes to their respective ranges and limits held notes to the hardware allocation. The old default (Upright Bass + Piano 1) is unchanged. Use the resulting format-0 file with MIDIPLAY.CMD. This converter extension is not yet execution-tested.
+
 ## Desktop conversion
 
 Install Python 3 and mido (`python -m pip install mido`). Merge format 1:
@@ -38,7 +62,7 @@ For a selected bass/piano arrangement, select the correct zero-based tracks:
 python convert_midi.py INPUT.MID OUTPUT.MID --emt10 --bass 1 --piano 2 3 --basic-data OUTPUT.DAT
 ```
 
-This maps selected parts to channel 1, Yamaha program 48 (Piano 1 + Upright Bass), limits held notes to two bass and six piano notes, folds pitches across the split as required and omits original sustain automation. It is not general orchestral transcription. Supply your own MIDI files; no copyrighted songs are distributed.
+This maps selected parts to channel 1, the selected Yamaha Bass Split program (default 48, Piano 1 + Upright Bass), limits held notes to two bass and six piano notes, folds pitches across the split as required and omits original sustain automation. It is not general orchestral transcription. Supply your own MIDI files; no copyrighted songs are distributed.
 
 ## BASIC player
 
