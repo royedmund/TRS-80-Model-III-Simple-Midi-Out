@@ -1,0 +1,8 @@
+Built MIDIPLAY.CMD: 1374 bytes, load 6000-6541, entry 6000
+PASS clock 2 UART stream, running status, tempo, SysEx skip, close and cleanup; ticks [2, 2, 2, 13, 13, 13, 13, 13, 13, 13, 13, 19, 19, 19]
+PASS clock 3 UART stream, running status, tempo, SysEx skip, close and cleanup; ticks [2, 2, 2, 16, 16, 16, 16, 16, 16, 16, 16, 23, 23, 23]
+PASS BREAK cleanup
+PASS UART timeout cleanup
+PASS truncated track rejection
+PASS invalid header rejection
+PASS complete adapted song: 4958 MIDI bytes, 5452049 executed instructions (mock clock)

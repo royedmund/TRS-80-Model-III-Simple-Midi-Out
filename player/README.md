@@ -37,3 +37,7 @@ Format 0, single MTrk, exact six-byte MThd, PPQN only; max track length and each
 Previously mock-tested Z80 opcodes against UART, DOS and keyboard stubs. This is not a full emulator or hardware timing test. Actual LDOS operation, BASIC, Arduino firmware and Yamaha audio remain to be tested. TRSDOS is not verified.
 
 See the [root README](../README.md) for hardware and [MIT License](../LICENSE).
+
+## Rebuild and run mock tests
+
+From this directory, run `python build.py` followed by `python test_player.py`. The included restricted assembler generates the CMD and symbol map. The harness exercises the actual Z80 opcodes against mock DOS, UART and keyboard calls. See [TESTS.txt](TESTS.txt) for the original local results. The optional NYSTATE.MID test is skipped unless you supply your own converted song file. No song data is included.
