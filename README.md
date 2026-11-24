@@ -2,7 +2,7 @@
 
 A minimal, external, one-way MIDI interface for the TRS-80 Model III and Yamaha EMT-10 AWM Sound Expander. No modification to the TRS-80 is required.
 
-**Status:** Rev 0.1 prototype design, 24 November 2026. Firmware and circuit have not yet been tested on physical hardware.
+**Status:** Rev 0.2 prototype design, 24 November 2026. Firmware and circuit have not yet been tested on physical hardware.
 
 ## How it works
 
@@ -76,11 +76,30 @@ The bridge does not interpret the data or add line endings. Do not send debuggin
 
 Send binary byte values, not ASCII hex strings. If a note sticks, explicitly send note-off for each active note or use the Yamaha's reset procedure. CC 123 (B0 7B 00) may be used if supported by the receiver.
 
-## Planned development
+## Model III MIDI player (v0.2)
 
-- LDOS BASIC scale and chord test.
-- Z80 assembly MIDI player in CMD format.
-- Real-hardware testing on the Model III and Yamaha EMT-10.
+The native Z80 player streams compatible format-0 SMF files from disk. LDOS 5.3.1 is the initial target; TRSDOS and physical hardware are not yet verified.
+
+- [MIDIPLAY.CMD](player/MIDIPLAY.CMD) — 1,374-byte native executable
+- [MIDIPLAY.ASM](player/MIDIPLAY.ASM) — Z80 source
+- [NYPLAY.BAS](player/NYPLAY.BAS) — BASIC player for converted data
+- [VOICES.MID](player/VOICES.MID) — original 12-voice EMT-10 demo
+- [convert_midi.py](player/convert_midi.py) — desktop conversion utility
+- [Player documentation](player/README.md)
+
+Transfer CMD and MID files in binary mode; preserve the CR-delimited BASIC source. At LDOS Ready, enter:
+
+```text
+MIDIPLAY VOICES/MID:0
+```
+
+Select the actual LDOS tick frequency (2 = 25 Hz, 3 = 30 Hz); BREAK stops native playback. The EMT-10's voice assignments are not General MIDI patch numbers. Use converted files for this single-voice module.
+
+The player supports running status, tempo changes, note and controller messages, skips SysEx, and sends pedal/all-notes-off cleanup. Format 1 requires desktop conversion. The adapted song was mock-tested locally but is not distributed here.
+
+## License
+
+Original project code, documentation, schematic and original voice demo are provided under the [MIT License](LICENSE). Third-party manuals, songs and recordings are not included or licensed by this project.
 
 ## References
 
