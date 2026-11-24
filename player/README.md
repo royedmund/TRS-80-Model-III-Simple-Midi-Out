@@ -8,6 +8,22 @@ MIDIPLAY VOICES/MID:0
 
 Choose 2 for 25 Hz or 3 for 30 Hz according to the actual LDOS clock. BREAK stops playback. The original voice demo selects all twelve EMT-10 voices with velocity and pedal examples. Set the EMT-10 to channel 1 or OMNI.
 
+## Original piano and brass test piece
+
+[PIANOBRS.MID](PIANOBRS.MID) is a 38.4-second, 16-bar original composition in C major at 100 BPM, using format 0, 96 PPQN, MIDI channel 1 and the EMT-10's native programs 0 (Piano 1) and 7 (Brass). The two voices alternate every four bars because a single EMT-10 cannot independently play piano and brass at once. It tests arpeggios, staccato chords, velocity, sustain and program changes, with all notes released before voice changes. Maximum simultaneous held notes: four.
+
+Transfer PIANOBRS.MID (1,312 bytes) in binary mode to your LDOS disk as PIANOBRS/MID and run:
+
+```
+MIDIPLAY PIANOBRS/MID:0
+```
+
+Select the actual LDOS clock rate and use BREAK to stop. This is an EMT-10-specific file, not a General MIDI arrangement. A GM synth will interpret program 7 as Clavinet rather than Brass.
+
+The original piece and its [generator](make_piano_brass.py) are MIT-licensed. To regenerate, install mido and run `python make_piano_brass.py`.
+
+Mock-tested using the assembled CMD: all 1,028 expected channel-message bytes matched at both 25 Hz and 30 Hz, followed by the player's 192-byte cleanup. Audio playback and real hardware remain untested.
+
 ## Desktop conversion
 
 Install Python 3 and mido (`python -m pip install mido`). Merge format 1:

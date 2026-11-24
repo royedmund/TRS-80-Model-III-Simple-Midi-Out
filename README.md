@@ -84,6 +84,7 @@ The native Z80 player streams compatible format-0 SMF files from disk. LDOS 5.3.
 - [MIDIPLAY.ASM](player/MIDIPLAY.ASM) — Z80 source
 - [NYPLAY.BAS](player/NYPLAY.BAS) — BASIC player for converted data
 - [VOICES.MID](player/VOICES.MID) — original 12-voice EMT-10 demo
+- [PIANOBRS.MID](player/PIANOBRS.MID) — original 38.4-second Piano 1 / Brass test, with [generator](player/make_piano_brass.py)
 - [convert_midi.py](player/convert_midi.py) — desktop conversion utility
 - [Player documentation](player/README.md)
 
@@ -97,9 +98,11 @@ Select the actual LDOS tick frequency (2 = 25 Hz, 3 = 30 Hz); BREAK stops native
 
 The player supports running status, tempo changes, note and controller messages, skips SysEx, and sends pedal/all-notes-off cleanup. Format 1 requires desktop conversion. The adapted song was mock-tested locally but is not distributed here.
 
+To audition Piano 1 and Brass in an alternating original piece, run `MIDIPLAY PIANOBRS/MID:0`. See the [player documentation](player/README.md#original-piano-and-brass-test-piece) for details and test results.
+
 ## License
 
-Original project code, documentation, schematic and original voice demo are provided under the [MIT License](LICENSE). Third-party manuals, songs and recordings are not included or licensed by this project.
+Original project code, documentation, schematic and original MIDI demonstrations are provided under the [MIT License](LICENSE). Third-party manuals, songs and recordings are not included or licensed by this project.
 
 ## References
 

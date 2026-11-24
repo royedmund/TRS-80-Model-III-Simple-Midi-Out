@@ -6,3 +6,7 @@ PASS UART timeout cleanup
 PASS truncated track rejection
 PASS invalid header rejection
 PASS complete adapted song: 4958 MIDI bytes, 5452049 executed instructions (mock clock)
+
+PIANOBRS.MID original test (2026-11-24): format 0, 96 PPQN, 347 events, 38.4 seconds, max 4 held notes. All note-offs matched, no held notes or sustain at program changes.
+PASS clock 2: 1028 channel bytes + 192 cleanup bytes, 964294 mock instructions.
+PASS clock 3: 1028 channel bytes + 192 cleanup bytes, 1156293 mock instructions.
