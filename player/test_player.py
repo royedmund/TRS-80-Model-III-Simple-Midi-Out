@@ -13,7 +13,7 @@ class CPU:
    n=cmd[p+1] or 256;adr=int.from_bytes(cmd[p+2:p+4],'little');self.mem[adr:adr+n-2]=cmd[p+4:p+2+n];p+=n+2
   assert cmd[p:p+2]==bytes([2,2]);self.pc=int.from_bytes(cmd[p+2:p+4],'little');self.sp=0xf000
   self.r=[0]*8;self.z=False;self.c=False;self.steps=0;self.ticks=0;self.smf=smf;self.pos=0;self.clock=clock;self.break_at=break_at;self.uart_ok=uart_ok;self.uart=[];self.ports=[];self.text='';self.closed=False;self.break_pc=break_pc;self.break_after_bytes=break_after_bytes;self.opened=False
-  self.capture=capture;self.frames=[];self.programs=[]
+  self.capture=capture;self.frames=[];self.programs=[];self.stream_frames=[]
   self.no_file=no_file;self.latched_pc=latched_pc;self.latched_fired=False;self.mem[0x429f]=0x42|int(stale_flag)
   self.setpair(2,0x5000);self.mem[0x5000:0x500b]=b'TEST/MID:0\r'
  def word(self,a):return self.mem[a]|self.mem[(a+1)&65535]<<8
@@ -50,13 +50,14 @@ class CPU:
    if (self.break_at is not None and self.ticks>=self.break_at) or self.pc==self.break_pc or (self.break_after_bytes is not None and len(self.uart)>=self.break_after_bytes):self.mem[0x3840]=4
    if self.pc==self.latched_pc and not self.latched_fired:self.mem[0x429f]|=1;self.latched_fired=True
    p=self.pc
+   if self.capture and p==SYMS['stream_render_done']:self.stream_frames.append((self.ticks,bytes(self.mem[0x3ec0:0x3f00])))
    if self.capture and p==SYMS['render_done']:self.frames.append((self.ticks,bytes(self.mem[0x3c00:0x4000])))
    if self.capture and p==SYMS['observe_program_done']:self.programs.append(bytes(self.mem[0x3cc0:0x3d00]))
    if p==0x402d:return self
    if p in (0x441c,0x4424,0x4428,0x0013,0x002b,0x0033):
     if p==0x441c:
      assert self.pair(2)==0x5000, 'DOS command tail lost'
-     assert self.text.startswith('\rTRS-80 MODEL III MIDI PLAYER v0.7\rPress BREAK to Exit\r'), 'launch banner not displayed before FSPEC'
+     assert self.text.startswith('\rTRS-80 MODEL III MIDI PLAYER v0.9\rPress BREAK to Exit\r'), 'launch banner not displayed before FSPEC'
      de=self.pair(1);self.mem[de:de+9]=b'TEST/MID\x03';self.z=not self.no_file
     elif p==0x4424:self.z=True;self.opened=True
     elif p==0x4428:assert self.opened and not self.closed;self.closed=True;self.z=True
@@ -198,7 +199,50 @@ if __name__=='__main__':
  for arg in sys.argv[1:]:
   import mido
   p=Path(arg); mf=mido.MidiFile(p)
-  expected_song=bytes(b for msg in mf.tracks[0] if not msg.is_meta and msg.type!='sysex' for b in msg.bytes())
+  expected_song=bytes(b for msg in mf.tracks[0] if not msg.is_meta and (msg.type!='sysex' or (tuple(msg.data[:4])==(0x43,0x73,0x11,0x11) and len(msg.data)==5 and msg.data[4] in (7,8,9,23,24,25,64,65,80,81,96,97,112,113,114))) for b in msg.bytes())
   c=CPU(p.read_bytes()).run(maxsteps=20000000)
   assert sent(c)==expected_song+panic and c.closed and c.sp==0xf000 and 'End of MIDI' in c.text
   print('PASS full arrangement',p.name,len(expected_song),'MIDI bytes + cleanup; mock clock')
+
+# Timed Nano protocol: raw MIDI events remain unaltered between markers.
+for rate,start_token in [('4',0xfd),('5',0xf9)]:
+ c=CPU(smf(track),clock=rate).run(); wire=sent(c)
+ assert wire[0]==start_token and wire[-1]==0xfa and 0xf8 in wire
+ assert bytes(b for b in wire[1:-1] if b!=0xf8)==expected
+ assert c.closed and c.sp==0xf000
+ print('PASS buffered mode',rate,'START/tick/END protocol and exact MIDI data')
+ c=CPU(smf(track),clock=rate,break_pc=SYMS['wait_loop']).run();wire=sent(c)
+ assert wire==bytes([start_token])+expected[:3]+bytes([0xfc]),wire.hex()
+ assert 'Playback stopped' in c.text and c.closed and c.sp==0xf000
+ print('PASS buffered BREAK sends immediate STOP, no duplicate host panic',rate)
+# Accepted Yamaha SysEx, unknown vendor/command, F7 escape, malformed end.
+valid=bytes.fromhex('43 73 11 11 07 F7')
+unknown=bytes.fromhex('43 73 11 11 06 F7')
+for rate in ('2','4'):
+ t=b'\x00\xf0\x06'+valid+b'\x00\xf0\x06'+unknown+b'\x00\xf7\x06'+valid+b'\x00\xf0\x06'+valid[:-1]+b'\x00'+b'\x00\xff\x2f\x00'
+ c=CPU(smf(t),clock=rate).run();wire=sent(c)
+ assert wire==(b'\xf0'+valid+panic if rate=='2' else b'\xfd\xf0'+valid+b'\xfa'),wire.hex()
+ print('PASS complete whitelisted SysEx, unknown/escape/malformed skip',rate)
+c=CPU(smf(b'\x00\xf0\x06'+valid+b'\x00\xff\x2f\x00'),clock='4',break_pc=SYMS['sxread']).run()
+assert sent(c)==b'\xfd\xfc' and c.closed
+print('PASS BREAK while reading SysEx emits no partial message')
+
+# TX monitor tests: actual screen output, final partial tick, wrap and filtering.
+def txrow(c): return bytes(c.mem[0x3ec0:0x3f00]).decode('ascii').split()
+for rate in ('2','3','4','5'):
+ c=CPU(smf(track),clock=rate,capture=True).run()
+ assert txrow(c)==[f'{b:02X}' for b in expected],txrow(c)
+ assert len(c.stream_frames)>1
+ assert any(b'90 3C 64' in f for _,f in c.stream_frames)
+ print('PASS live hex stream, final partial tick and transport/cleanup filtering',rate)
+# More than 16 bytes, another channel and whitelisted SysEx.
+t=b''.join(bytes([0,0x91,n,0x7f]) for n in range(40,49))+b'\x00\xf0\x06'+valid+b'\x00\xff\x2f\x00'
+want=b''.join(bytes([0x91,n,0x7f]) for n in range(40,49))+b'\xf0'+valid
+for rate in ('2','4'):
+ c=CPU(smf(t),clock=rate,capture=True).run()
+ assert txrow(c)==[f'{b:02X}' for b in want[-16:]],txrow(c)
+ assert b' '.join(f'{b:02X}'.encode() for b in want[-16:]) in c.stream_frames[-1][1]
+ print('PASS monitor ring wrap, other-channel bytes and full SysEx',rate)
+c=CPU(smf(track),clock='4',break_pc=SYMS['wait_loop']).run()
+assert txrow(c)==['90','3C','64'] and sent(c)==b'\xfd'+expected[:3]+b'\xfc'
+print('PASS BREAK retains last musical bytes and sends STOP')

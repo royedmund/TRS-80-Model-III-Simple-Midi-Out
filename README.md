@@ -2,7 +2,7 @@
 
 A minimal, external, one-way MIDI interface for the TRS-80 Model III and Yamaha EMT-10 AWM Sound Expander. No modification to the TRS-80 is required.
 
-**Status (25 November 2026):** The Rev 0.2 hardware interface and MIDIPLAY v0.5 achieved musical playback on a physical TRS-80 Model III and Yamaha EMT-10. BREAK exit and end-of-file return to LDOS were verified by the project owner. The newer v0.7 executable is mock-tested, not yet hardware-tested.
+**Status (25 November 2026):** The Rev 0.2 hardware interface and MIDIPLAY v0.5 achieved musical playback on a physical TRS-80 Model III and Yamaha EMT-10. BREAK exit and end-of-file return to LDOS were verified by the project owner. MIDIPLAY v0.9 adds optional timestamped Nano buffering, a live hexadecimal MIDI TX monitor and Yamaha-specific effects. v0.9 and the buffered firmware have passed mock Z80 and desktop firmware tests; AVR compilation and physical hardware playback of this release are not yet verified.
 
 ## How it works
 
@@ -55,7 +55,9 @@ The direct Nano TX driver is a deliberately minimal prototype. A buffered output
 
 Open `firmware/serial_to_midi/serial_to_midi.ino` in the Arduino IDE. Select the classic Arduino Nano (ATmega328P), the appropriate bootloader option and serial port. Disconnect the Yamaha while uploading or resetting the Nano, since bootloader traffic on D1 is not valid MIDI. No extra libraries beyond the AVR core's SoftwareSerial are needed.
 
-The bridge does not interpret the data or add line endings. Do not send debugging text over the MIDI UART.
+The original transparent bridge does not interpret data or add line endings. Do not send debugging text over the MIDI UART.
+
+For optional buffered playback, use the [v0.8/v0.9 buffered Nano sketch](player/firmware/serial_to_midi_buffered/serial_to_midi_buffered.ino). It retains the same wiring and baud rates, adds a 192-entry timestamped FIFO (960 bytes of SRAM) and nominal 160 ms lookahead, with a communications watchdog and BREAK cancellation. The original sketch remains available as a fallback. **Only select buffered modes 4/5 with the new firmware installed.** The timed protocol reserves certain MIDI real-time bytes; the new sketch is not a transparent general-purpose MIDI clock bridge. See the [player documentation](player/README.md) for installation, limitations and tests.
 
 ## First hardware test
 
@@ -76,14 +78,17 @@ The bridge does not interpret the data or add line endings. Do not send debuggin
 
 Send binary byte values, not ASCII hex strings. If a note sticks, explicitly send note-off for each active note or use the Yamaha's reset procedure. CC 123 (B0 7B 00) may be used if supported by the receiver.
 
-## Model III MIDI player (v0.7)
+## Model III MIDI player (v0.9)
 
-The native Z80 player streams compatible format-0 SMF files from disk. LDOS 5.3.1 is the target; v0.5 has been hardware-tested. TRSDOS and physical hardware performance of v0.7 are not yet verified.
+The native Z80 player streams compatible format-0 SMF files from disk. LDOS 5.3.1 is the target; v0.5 has been hardware-tested. TRSDOS and physical hardware performance of v0.9 are not yet verified.
 
-- [MIDIPLAY.CMD](player/MIDIPLAY.CMD) — 5,966-byte native executable
+- [MIDIPLAY.CMD](player/MIDIPLAY.CMD) — 7,281-byte native executable
 - [MIDIPLAY.ASM](player/MIDIPLAY.ASM) — Z80 source
+- [ROCKJAZZ.MID](player/ROCKJAZZ.MID) — Silicon After Hours, original 176 BPM jazz-rock demo with all 12 solo voices, 27 Bass Split combinations and Yamaha effects
+- [ROCKRAW.MID](player/ROCKRAW.MID) — original demo without SysEx, compatible with v0.7
+- [make_rockjazz.py](player/make_rockjazz.py) — reproducible original composition generator
 - [NYPLAY.BAS](player/NYPLAY.BAS) — BASIC player for converted data
-- [SPLIT27.MID](player/SPLIT27.MID) — all 27 two-voice Bass Split combinations ([instructions](player/README.md#two-voice-bass-split-mode-emt-10))
+- [SPLIT27.MID](player/SPLIT27.MID) — all 27 two-voice Bass Split combinations ([instructions](player/README-v0.7.md#two-voice-bass-split-mode-emt-10))
 - [VOICES.MID](player/VOICES.MID) — original 12-voice EMT-10 demo
 - [PIANOBRS.MID](player/PIANOBRS.MID) — original 38.4-second Piano 1 / Brass test, with [generator](player/make_piano_brass.py)
 - [convert_midi.py](player/convert_midi.py) — desktop conversion utility
@@ -92,14 +97,14 @@ The native Z80 player streams compatible format-0 SMF files from disk. LDOS 5.3.
 Transfer CMD and MID files in binary mode; preserve the CR-delimited BASIC source. At LDOS Ready, enter:
 
 ```text
-MIDIPLAY VOICES/MID:0
+MIDIPLAY ROCKJAZZ/MID:0
 ```
 
-Select the actual LDOS tick frequency (2 = 25 Hz, 3 = 30 Hz); BREAK stops native playback. The EMT-10's voice assignments are not General MIDI patch numbers. Use converted files for this single-voice module.
+Select the actual LDOS tick frequency (2 = 25 Hz raw, 3 = 30 Hz raw; 4 = 25 Hz buffered, 5 = 30 Hz buffered with the new Nano firmware only). BREAK stops native playback. The EMT-10's voice assignments are not General MIDI patch numbers. Use converted files for this single-voice module.
 
-The player supports running status, tempo changes, note and controller messages, skips SysEx, and sends pedal/all-notes-off cleanup. v0.7 adds a passive live EMT-10 voice, held-note and sustain dashboard and batched timing calculations. See [v0.7 notes](player/README.txt), [regression tests](player/TESTS.txt), and [benchmarks](player/BENCHMARK.txt). Format 1 requires desktop conversion. The adapted song was mock-tested locally but is not distributed here.
+The player supports running status, tempo changes, note and controller messages, whitelisted complete Yamaha EMT-10 parameter SysEx, pedal/all-notes-off cleanup and optional timed buffering. The dashboard displays the requested channel-1 instrument(s), held notes, sustain and the last 16 transmitted musical bytes in hex. The display shows data sent by the TRS-80, not MIDI OUT readback; buffered audio follows the display by about 160 ms. See [Z80 regression tests](player/TESTS.txt), [timing checks](player/TIMED_TESTS.txt) and [host-side firmware tests](player/BUFFER_TESTS.txt). Earlier [v0.7 notes](player/README.txt) and [v0.7 benchmarks](player/BENCHMARK.txt) remain historical references, not v0.9 benchmarks. Format 1 requires desktop conversion. Third-party song arrangements are not distributed here.
 
-To audition Piano 1 and Brass in an alternating original piece, run `MIDIPLAY PIANOBRS/MID:0`. See the [player documentation](player/README.md#original-piano-and-brass-test-piece) for details and test results.
+To audition Piano 1 and Brass in an alternating original piece, run `MIDIPLAY PIANOBRS/MID:0`. See the [historical demo documentation](player/README-v0.7.md#original-piano-and-brass-test-piece) for details and test results.
 
 ## License
 
@@ -108,6 +113,7 @@ Original project code, documentation, schematic and original MIDI demonstrations
 ## References
 
 - [MIDI Association official specifications](https://midi.org/specs)
+- [Yamaha EMT-10 user's guide](https://ru.yamaha.com/files/download/other_assets/2/320652/EMT10E.PDF)
 
 - [TRS-80 Model III service manual](https://manualzz.com/doc/63456250/radio-shack-26-1062--trs-80-service-manual)
 - [TRS-80 port and I/O reference](https://www.trs-80.com/main-internal-ports-and-i-o.htm)

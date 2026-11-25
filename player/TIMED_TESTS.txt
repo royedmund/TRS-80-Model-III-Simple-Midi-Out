@@ -1,0 +1,4 @@
+PASS ROCKJAZZ.MID mode 4: 23636 MIDI bytes, 5326 timed ticks, peak 112/192 queue bytes, zero late arrivals (ideal model)
+PASS ROCKJAZZ.MID mode 5: 23636 MIDI bytes, 6392 timed ticks, peak 115/192 queue bytes, zero late arrivals (ideal model)
+PASS ROCKRAW.MID mode 4: 22152 MIDI bytes, 5326 timed ticks, peak 54/192 queue bytes, zero late arrivals (ideal model)
+PASS ROCKRAW.MID mode 5: 22152 MIDI bytes, 6392 timed ticks, peak 54/192 queue bytes, zero late arrivals (ideal model)

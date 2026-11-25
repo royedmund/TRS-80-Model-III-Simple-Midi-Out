@@ -1,0 +1,9 @@
+PASS raw bridge bytes unchanged
+PASS timed due, 80ms delayed tick absorbed, END drain + panic 253
+PASS timed due, 80ms delayed tick absorbed, END drain + panic 249
+PASS BREAK discards pending music and sends panic
+PASS STOP terminates partial SysEx before panic
+PASS overflow fails safely and new START recovers
+PASS silent link watchdog panic
+PASS micros() rollover
+PASS nonblocking transmit under UART backpressure

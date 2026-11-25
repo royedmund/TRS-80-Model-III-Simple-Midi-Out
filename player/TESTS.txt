@@ -27,3 +27,19 @@ PASS all 128 native program numbers and aliases; MIDI stream unchanged
 PASS boundary notes, overflow indicator, other channels forwarded
 PASS upper MIDI pitch 127 and split boundary 55
 PASS BREAK during live redraw, cleanup and note fields cleared
+PASS full arrangement ROCKJAZZ.MID 23636 MIDI bytes + cleanup; mock clock
+PASS full arrangement ROCKRAW.MID 22152 MIDI bytes + cleanup; mock clock
+PASS buffered mode 4 START/tick/END protocol and exact MIDI data
+PASS buffered BREAK sends immediate STOP, no duplicate host panic 4
+PASS buffered mode 5 START/tick/END protocol and exact MIDI data
+PASS buffered BREAK sends immediate STOP, no duplicate host panic 5
+PASS complete whitelisted SysEx, unknown/escape/malformed skip 2
+PASS complete whitelisted SysEx, unknown/escape/malformed skip 4
+PASS BREAK while reading SysEx emits no partial message
+PASS live hex stream, final partial tick and transport/cleanup filtering 2
+PASS live hex stream, final partial tick and transport/cleanup filtering 3
+PASS live hex stream, final partial tick and transport/cleanup filtering 4
+PASS live hex stream, final partial tick and transport/cleanup filtering 5
+PASS monitor ring wrap, other-channel bytes and full SysEx 2
+PASS monitor ring wrap, other-channel bytes and full SysEx 4
+PASS BREAK retains last musical bytes and sends STOP

@@ -1,5 +1,5 @@
 ; MIDIPLAY/CMD - Model III LDOS 5.3.1, one-way 9600 baud bridge
-; Rev 0.7: batched timing and selective display refresh; live EMT-10 voice and held-note dashboard (MIDI channel 1).
+; Rev 0.9: 16-byte live hexadecimal MIDI monitor; optional Nano timed FIFO and whitelisted Yamaha SysEx; batched timing and selective display refresh; live EMT-10 voice and held-note dashboard (MIDI channel 1).
 ; Display is passive: never changes the MIDI byte stream.
 ; 64x16 video RAM 3C00H-3FFFH; note refresh limited to one per LDOS tick.
 ; LDOS 5.3.1 KFLAG$ 429FH bit 0: interrupt-latched BREAK.
@@ -14,6 +14,8 @@ start:
     ld (playing),a
     ld (running),a
     ld (display_on),a
+    ld (buffered),a
+    ld (natural_end),a
     call clearbreak ; Discard a stale DOS BREAK flag, preserve command-tail HL.
     ; Show the instruction immediately, even with no or invalid filename.
     ; The DOS command tail is in HL, so save it across console output.
@@ -83,12 +85,25 @@ ask:
     call 0x002b ; KBSCAN: A=key code or zero if none
     cp 1        ; ROM BREAK character
     jp z,stop_playback
+    cp 52
+    jp z,buf25
+    cp 53
+    jp z,buf30
     cp 50
     jp z,hz25
     cp 51
     jp nz,ask
+hz30:
     ld de,33333
     jp make_threshold
+buf25:
+    ld a,0xfd ; buffered START at 25Hz
+    ld (buffered),a
+    jp hz25
+buf30:
+    ld a,0xf9 ; buffered START at 30Hz
+    ld (buffered),a
+    jp hz30
 hz25:
     ld de,40000
 make_threshold:
@@ -131,6 +146,7 @@ no_carry:
     ld hl,playingmsg
     call print
     call init_display
+    call start_buffer
     ld a,(0x4288)
     ld (target),a
 next_event:
@@ -144,7 +160,7 @@ next_event:
     cp 0xff
     jp z,meta
     cp 0xf0
-    jp z,sysex
+    jp z,sysex_f0
     cp 0xf7
     jp z,sysex
     cp 0xf0
@@ -174,18 +190,18 @@ first_data:
     ld (data2),a
     ; Finish transmitting a complete message before polling BREAK again.
     ld a,(running)
-    call send
+    call send_midi
     ld a,(data1)
-    call send
+    call send_midi
     ld a,(data2)
-    call send
+    call send_midi
     call observe_three
     jp next_event
 one_data:
     ld a,(running)
-    call send
+    call send_midi
     ld a,(data1)
-    call send
+    call send_midi
     call observe_two
     jp next_event
 meta:
@@ -222,8 +238,73 @@ endtrack:
     ld a,h
     or l
     jp nz,bad
+    ld a,1
+    ld (natural_end),a
     ld hl,finishedmsg
     jp finish
+; Only complete documented EMT-10 parameter SysEx is forwarded.
+; All bytes are read and validated BEFORE transmitting F0; no partial
+; SysEx is transmitted if BREAK or disk failure occurs while reading.
+sysex_f0:
+    xor a
+    ld (running),a
+    call vlq
+    ld a,h
+    or a
+    jp nz,skip
+    ld a,l
+    cp 6
+    jp nz,skip
+    ld hl,sxdata
+    ld b,6
+sxread:
+    call get
+    ld (hl),a
+    inc hl
+    djnz sxread
+    ld hl,sxdata
+    ld a,(hl)
+    cp 0x43
+    jp nz,next_event
+    inc hl
+    ld a,(hl)
+    cp 0x73
+    jp nz,next_event
+    inc hl
+    ld a,(hl)
+    cp 0x11
+    jp nz,next_event
+    inc hl
+    ld a,(hl)
+    cp 0x11
+    jp nz,next_event
+    inc hl
+    ld c,(hl)
+    inc hl
+    ld a,(hl)
+    cp 0xf7
+    jp nz,next_event
+    ld hl,sxcodes
+    ld b,15
+sxfind:
+    ld a,(hl)
+    cp c
+    jp z,sxsend
+    inc hl
+    djnz sxfind
+    jp next_event
+sxsend:
+    call checkbreak
+    ld a,0xf0
+    call send_midi
+    ld hl,sxdata
+    ld b,6
+sxout:
+    ld a,(hl)
+    call send_midi
+    inc hl
+    djnz sxout
+    jp next_event
 sysex:
     xor a
     ld (running),a
@@ -437,6 +518,7 @@ wait_loop:
     sub b
     bit 7,a
     jp nz,wait_loop
+    call buffer_tick
     call refresh_notes
     ret
 ; Check the physical key and the LDOS interrupt-latched flag.
@@ -481,6 +563,64 @@ rawget:
     pop de
     pop bc
     ret
+; The buffered protocol uses reserved transport bytes on RS-232 only.
+; Never select buffered mode with the old transparent Nano firmware.
+start_buffer:
+    ld a,(buffered)
+    or a
+    ret z
+    call send
+    ld hl,0x3dc0
+    ld de,buflabel
+    ld b,32
+    call vcopy
+    ret
+buffer_tick:
+    ld a,(buffered)
+    or a
+    ret z
+    ld a,0xf8 ; advance nominal LDOS tick on Nano
+    jp send
+; Send a musical byte, then record it only after UART accepts it.
+; Transport markers and panic use send directly, not this wrapper.
+send_midi:
+    call send
+    push bc
+    push de
+    push hl
+    ; Look up two hex digits and a space. Store in a 16-cell text ring.
+    ld l,a
+    ld h,0
+    ld d,h
+    ld e,l
+    add hl,hl
+    add hl,de
+    ld de,hex_cells
+    add hl,de
+    ld d,h
+    ld e,l
+    ld a,(stream_head)
+    ld l,a
+    ld h,0
+    ld bc,stream_ring
+    add hl,bc
+    ld b,3
+    call vcopy
+    ld a,(stream_head)
+    inc a
+    inc a
+    inc a
+    cp 48
+    jp nz,stream_save_head
+    xor a
+stream_save_head:
+    ld (stream_head),a
+    ld a,1
+    ld (stream_dirty),a
+    pop hl
+    pop de
+    pop bc
+    ret
 send:
     push bc
     ld c,a
@@ -517,6 +657,20 @@ finish:
     jp z,closefile
     xor a
     ld (playing),a
+    ld a,(buffered)
+    or a
+    jp z,raw_panic
+    ; Nano owns the panic in buffered mode. END drains queued music;
+    ; STOP discards it immediately. Its local watchdog handles link failure.
+    ld a,(natural_end)
+    or a
+    ld a,0xfc
+    jp z,buffer_finish
+    ld a,0xfa
+buffer_finish:
+    call send
+    jp closefile
+raw_panic:
     ; No BREAK polling during cleanup: held BREAK cannot interrupt it.
     ; release sustain/sostenuto/soft and all notes on every channel
     ld b,16
@@ -618,9 +772,13 @@ screen_clear:
     ld de,dash_high
     ld b,64
     call vcopy
-    ld hl,0x3ec0
-    ld de,dash_explain
+    ld hl,0x3e80
+    ld de,dash_stream
     ld b,64
+    call vcopy
+    ld hl,0x3dc0
+    ld de,rawlabel
+    ld b,32
     call vcopy
     ld hl,0x3f00
     ld de,dash_split
@@ -630,7 +788,14 @@ screen_clear:
     ld hl,0x3f40
     ld (0x4020),hl
     call clear_notes
+    ld hl,stream_ring
+    ld b,48
+    call vblank
+    xor a
+    ld (stream_head),a
+    ld (stream_dirty),a
     ld a,(0x4288)
+    ld (stream_tick),a
     ld (last_refresh),a
     xor a
     ld (notes_dirty),a
@@ -757,7 +922,54 @@ clear_note_loop:
     ret
 ; Coalesce simultaneous events; refresh at most once per OS tick.
 ; Preserve BC/DE/HL because wait_tick uses them in nested timing loops.
+; Refresh monitor independently of note activity (SysEx, CC, other channels).
+; Use same clock rate as the note display, with separate dirty flag.
+refresh_stream:
+    ld a,(stream_dirty)
+    or a
+    ret z
+    push hl
+    ld hl,stream_tick
+    ld a,(0x4288)
+    cp (hl)
+    pop hl
+    ret z
+    ld (stream_tick),a
+render_stream:
+    push bc
+    push de
+    push hl
+    xor a
+    ld (stream_dirty),a
+    ; Chronological order: oldest at head, newest at right. Blank cells
+    ; lead the display until 16 bytes have been accepted by the UART.
+    ld a,(stream_head)
+    ld l,a
+    ld h,0
+    ld de,stream_ring
+    add hl,de
+    ld d,h
+    ld e,l
+    ld hl,0x3ec0
+    ld a,(stream_head)
+    ld b,a
+    ld a,48
+    sub b
+    ld b,a
+    call vcopy
+    ld a,(stream_head)
+    or a
+    jp z,stream_render_done
+    ld b,a
+    ld de,stream_ring
+    call vcopy
+stream_render_done:
+    pop hl
+    pop de
+    pop bc
+    ret
 refresh_notes:
+    call refresh_stream
     ld a,(notes_dirty)
     or a
     ret z
@@ -858,6 +1070,7 @@ finish_display:
     ret z
     xor a
     ld (display_on),a
+    call render_stream ; retain final musical bytes even on zero-delta EOF
     ld hl,0x3c40
     ld de,dash_ended
     ld b,64
@@ -878,23 +1091,23 @@ finish_display:
 
 header: db 77,84,104,100,0,0,0,6,0,0,0,1
 tracktag: db 77,84,114,107
-banner: db 13,"TRS-80 MODEL III MIDI PLAYER v0.7",13,"Press BREAK to Exit",13,0
-prompt: db 13,"Clock: 2=25Hz (50Hz video), 3=30Hz (60Hz video)",13,"Press BREAK to Exit",13,0
+banner: db 13,"TRS-80 MODEL III MIDI PLAYER v0.9",13,"Press BREAK to Exit",13,0
+prompt: db 13,"Raw: 2=25Hz, 3=30Hz",13,"Nano buffered: 4=25Hz, 5=30Hz (new firmware ONLY)",13,"Press BREAK to Exit",13,0
 playingmsg: db 13,"Playing MIDI...",13,"Press BREAK to Exit",13,0
 finishedmsg: db 13,"End of MIDI file.",13,0
 stoppedmsg: db 13,"Playback stopped.",13,0
 usagemsg: db 13,"Usage: MIDIPLAY NAME/MID:0",13,0
 badmsg: db 13,"Cannot read file or unsupported MIDI format.",13,0
 uartmsg: db 13,"Serial UART not ready.",13,0
-dash_title: db "TRS-80 MODEL III MIDI PLAYER V0.7 - YAMAHA EMT-10               "
+dash_title: db "TRS-80 MODEL III MIDI PLAYER V0.9 - YAMAHA EMT-10               "
 dash_help: db "PLAYING MIDI...   PRESS BREAK TO EXIT   DISPLAY: MIDI CH 1      "
 dash_ended: db "PLAYBACK ENDED - SEE STATUS BELOW                               "
-dash_voice: db "REQUESTED INSTRUMENT (PROGRAM NUMBER, 0-127):                   "
+dash_voice: db "EMT-10 REQUESTED VOICE(S) - PROGRAM NUMBER 0-127:               "
 dash_pedal: db "SUSTAIN: ---  (CC64 SENT)                                       "
 dash_low: db "LOW KEYS (BELOW G3) - BASS IN SPLIT MODE                        "
 dash_high: db "HIGH KEYS (G3 AND ABOVE) - UPPER IN SPLIT MODE                  "
-dash_explain: db "HELD NOTES / CHORD TONES. + = MORE THAN 12 IN RANGE             "
-dash_split: db "C4=MIDDLE C. DISPLAY SHOWS SENT DATA, NOT AUDIO.                "
+dash_stream: db "MIDI TX HEX - LAST 16 MUSIC BYTES (NEWEST RIGHT):               "
+dash_split: db "C4=MIDDLE C. TX ONLY. NO TRANSPORT/PANIC. + = MORE NOTES.       "
 pedal_on_text: db "ON "
 pedal_off_text: db "OFF"
 voice_unknown: db "PANEL SETTING / NO PROGRAM SENT         "
@@ -983,7 +1196,35 @@ refresh_mask: db 0
 slots: db 0
 note_dest: dw 0
 active_notes: ds 128
+stream_head: db 0
+stream_dirty: db 0
+stream_tick: db 0
+stream_ring: ds 48
+; Lookup avoids per-byte division and repeated nibble conversion.
+hex_cells:
+    db "00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F "
+    db "10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F "
+    db "20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F "
+    db "30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F "
+    db "40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F "
+    db "50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 5E 5F "
+    db "60 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F "
+    db "70 71 72 73 74 75 76 77 78 79 7A 7B 7C 7D 7E 7F "
+    db "80 81 82 83 84 85 86 87 88 89 8A 8B 8C 8D 8E 8F "
+    db "90 91 92 93 94 95 96 97 98 99 9A 9B 9C 9D 9E 9F "
+    db "A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF "
+    db "B0 B1 B2 B3 B4 B5 B6 B7 B8 B9 BA BB BC BD BE BF "
+    db "C0 C1 C2 C3 C4 C5 C6 C7 C8 C9 CA CB CC CD CE CF "
+    db "D0 D1 D2 D3 D4 D5 D6 D7 D8 D9 DA DB DC DD DE DF "
+    db "E0 E1 E2 E3 E4 E5 E6 E7 E8 E9 EA EB EC ED EE EF "
+    db "F0 F1 F2 F3 F4 F5 F6 F7 F8 F9 FA FB FC FD FE FF "
 
+buflabel: db "NANO BUFFER ON - 160MS LOOKAHEAD"
+rawlabel: db "RAW MIDI TX - NO NANO LOOKAHEAD "
+sxcodes: db 0x07,0x08,0x09,0x17,0x18,0x19,0x40,0x41,0x50,0x51,0x60,0x61,0x70,0x71,0x72
+sxdata: ds 6
+buffered: db 0
+natural_end: db 0
 savedsp: dw 0
 opened: db 0
 playing: db 0
