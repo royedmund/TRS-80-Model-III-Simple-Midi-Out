@@ -1,0 +1,12 @@
+PASS NYEMT10.MID 2: identical UART bytes and logical tick deadlines; 4,228,792 -> 2,538,972 instructions (40.0% fewer); 8,496 elapsed ticks
+PASS NYPIANO.MID 2: identical UART bytes and logical tick deadlines; 4,578,573 -> 2,798,645 instructions (38.9% fewer); 8,496 elapsed ticks
+PASS boundary and random deltas 2: identical UART bytes and logical tick deadlines; 3,102,623 -> 608,650 instructions (80.4% fewer); 109 elapsed ticks
+PASS extreme phase and tempo 2: identical UART bytes and logical tick deadlines; 2,684,880 -> 596,006 instructions (77.8% fewer); 843 elapsed ticks
+PASS short musical deltas 2: identical UART bytes and logical tick deadlines; 395,571 -> 171,789 instructions (56.6% fewer); 1,091 elapsed ticks
+PASS small PPQN 2: identical UART bytes and logical tick deadlines; 53,128 -> 48,259 instructions (9.2% fewer); 842 elapsed ticks
+PASS NYEMT10.MID 3: identical UART bytes and logical tick deadlines; 4,331,153 -> 2,622,427 instructions (39.5% fewer); 10,196 elapsed ticks
+PASS NYPIANO.MID 3: identical UART bytes and logical tick deadlines; 4,698,224 -> 2,889,372 instructions (38.5% fewer); 10,196 elapsed ticks
+PASS boundary and random deltas 3: identical UART bytes and logical tick deadlines; 3,086,726 -> 592,753 instructions (80.8% fewer); 131 elapsed ticks
+PASS extreme phase and tempo 3: identical UART bytes and logical tick deadlines; 2,674,128 -> 585,254 instructions (78.1% fewer); 1,012 elapsed ticks
+PASS short musical deltas 3: identical UART bytes and logical tick deadlines; 403,157 -> 179,375 instructions (55.5% fewer); 1,310 elapsed ticks
+PASS small PPQN 3: identical UART bytes and logical tick deadlines; 59,046 -> 54,177 instructions (8.2% fewer); 1,011 elapsed ticks

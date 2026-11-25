@@ -2,7 +2,7 @@
 
 A minimal, external, one-way MIDI interface for the TRS-80 Model III and Yamaha EMT-10 AWM Sound Expander. No modification to the TRS-80 is required.
 
-**Status:** Rev 0.2 prototype design, 24 November 2026. Firmware and circuit have not yet been tested on physical hardware.
+**Status (25 November 2026):** The Rev 0.2 hardware interface and MIDIPLAY v0.5 achieved musical playback on a physical TRS-80 Model III and Yamaha EMT-10. BREAK exit and end-of-file return to LDOS were verified by the project owner. The newer v0.7 executable is mock-tested, not yet hardware-tested.
 
 ## How it works
 
@@ -76,11 +76,11 @@ The bridge does not interpret the data or add line endings. Do not send debuggin
 
 Send binary byte values, not ASCII hex strings. If a note sticks, explicitly send note-off for each active note or use the Yamaha's reset procedure. CC 123 (B0 7B 00) may be used if supported by the receiver.
 
-## Model III MIDI player (v0.2)
+## Model III MIDI player (v0.7)
 
-The native Z80 player streams compatible format-0 SMF files from disk. LDOS 5.3.1 is the initial target; TRSDOS and physical hardware are not yet verified.
+The native Z80 player streams compatible format-0 SMF files from disk. LDOS 5.3.1 is the target; v0.5 has been hardware-tested. TRSDOS and physical hardware performance of v0.7 are not yet verified.
 
-- [MIDIPLAY.CMD](player/MIDIPLAY.CMD) — 1,374-byte native executable
+- [MIDIPLAY.CMD](player/MIDIPLAY.CMD) — 5,966-byte native executable
 - [MIDIPLAY.ASM](player/MIDIPLAY.ASM) — Z80 source
 - [NYPLAY.BAS](player/NYPLAY.BAS) — BASIC player for converted data
 - [SPLIT27.MID](player/SPLIT27.MID) — all 27 two-voice Bass Split combinations ([instructions](player/README.md#two-voice-bass-split-mode-emt-10))
@@ -97,7 +97,7 @@ MIDIPLAY VOICES/MID:0
 
 Select the actual LDOS tick frequency (2 = 25 Hz, 3 = 30 Hz); BREAK stops native playback. The EMT-10's voice assignments are not General MIDI patch numbers. Use converted files for this single-voice module.
 
-The player supports running status, tempo changes, note and controller messages, skips SysEx, and sends pedal/all-notes-off cleanup. Format 1 requires desktop conversion. The adapted song was mock-tested locally but is not distributed here.
+The player supports running status, tempo changes, note and controller messages, skips SysEx, and sends pedal/all-notes-off cleanup. v0.7 adds a passive live EMT-10 voice, held-note and sustain dashboard and batched timing calculations. See [v0.7 notes](player/README.txt), [regression tests](player/TESTS.txt), and [benchmarks](player/BENCHMARK.txt). Format 1 requires desktop conversion. The adapted song was mock-tested locally but is not distributed here.
 
 To audition Piano 1 and Brass in an alternating original piece, run `MIDIPLAY PIANOBRS/MID:0`. See the [player documentation](player/README.md#original-piano-and-brass-test-piece) for details and test results.
 
@@ -106,6 +106,8 @@ To audition Piano 1 and Brass in an alternating original piece, run `MIDIPLAY PI
 Original project code, documentation, schematic and original MIDI demonstrations are provided under the [MIT License](LICENSE). Third-party manuals, songs and recordings are not included or licensed by this project.
 
 ## References
+
+- [MIDI Association official specifications](https://midi.org/specs)
 
 - [TRS-80 Model III service manual](https://manualzz.com/doc/63456250/radio-shack-26-1062--trs-80-service-manual)
 - [TRS-80 port and I/O reference](https://www.trs-80.com/main-internal-ports-and-i-o.htm)

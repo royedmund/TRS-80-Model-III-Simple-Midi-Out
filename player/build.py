@@ -53,7 +53,7 @@ def assemble(passno):
    x=a[0];base={'and':0xa0,'or':0xb0,'xor':0xa8,'cp':0xb8,'sub':0x90}[op]
    if x in r8:return [base+r8[x]]
    return [{'and':0xe6,'or':0xf6,'xor':0xee,'cp':0xfe,'sub':0xd6}[op],val(x)&255]
-  if op=='bit':return [0xcb,0x40+8*val(a[0])+r8[a[1]]]
+  if op in ('bit','res'):return [0xcb,(0x40 if op=='bit' else 0x80)+8*val(a[0])+r8[a[1]]]
   if op=='jp':return ([0xc3]+w(val(a[0]))) if len(a)==1 else [0xc2+8*conds[a[0]]]+w(val(a[1]))
   if op=='call':return [0xcd]+w(val(a[0]))
   if op=='ret':return [0xc9] if not a else [0xc0+8*conds[a[0]]]

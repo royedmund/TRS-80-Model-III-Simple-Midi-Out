@@ -1,4 +1,6 @@
-# MIDI player v0.2 — LDOS 5.3.1
+# MIDI player v0.7 — LDOS 5.3.1
+
+**Hardware milestone:** The project owner confirmed music playback, BREAK exit and end-of-file exit on physical Model III hardware using v0.5 on 25 November 2026. v0.7 adds a live channel-1 EMT-10 dashboard and optimised batched timing, retaining the same serial interface. See [v0.7 usage and limits](README.txt), [tests](TESTS.txt), and [benchmarks](BENCHMARK.txt). v0.7 is mock-tested only. Historical test notes below refer to their original versions.
 
 Copy MIDIPLAY.CMD and VOICES.MID in binary mode onto your LDOS disk (MIDIPLAY/CMD and VOICES/MID). Use the documented 9600-baud bridge. Run:
 
@@ -70,14 +72,14 @@ Transfer NYPLAY.BAS and your generated DAT file as CR-delimited ASCII. In LDOS B
 
 ## Native player limits
 
-Format 0, single MTrk, exact six-byte MThd, PPQN only; max track length and each delta/meta length 65,535. Running status, tempo changes, channel messages and end-of-track supported. Other meta events and SysEx skipped. No automatic GM translation. Uses E8–EB UART ports and LDOS TIMER$ at 4288H (25/30 Hz); timing resolution approximately 40/33 ms. No RTS/CTS waiting, no interrupt hooks, no restoration of UART configuration. Requires free RAM 6000H–6541H. DOS disk latency and dense MIDI affect timing; stalls of 128 or more timer ticks cannot be reliably recovered.
+Format 0, single MTrk, exact six-byte MThd, PPQN only; max track length and each delta/meta length 65,535. Running status, tempo changes, channel messages and end-of-track supported. Other meta events and SysEx skipped. No automatic GM translation. Uses E8–EB UART ports and LDOS TIMER$ at 4288H (25/30 Hz); timing resolution approximately 40/33 ms. No RTS/CTS waiting, no interrupt hooks, no restoration of UART configuration. Requires free RAM 6000H–76E9H. DOS disk latency and dense MIDI affect timing; stalls of 128 or more timer ticks cannot be reliably recovered.
 
 ## Status
 
-Previously mock-tested Z80 opcodes against UART, DOS and keyboard stubs. This is not a full emulator or hardware timing test. Actual LDOS operation, BASIC, Arduino firmware and Yamaha audio remain to be tested. TRSDOS is not verified.
+Previously mock-tested Z80 opcodes against UART, DOS and keyboard stubs. This is not a full emulator or hardware timing test. Actual v0.5 LDOS operation, Nano bridge and Yamaha audio have now been verified by the project owner. v0.7 timing, BASIC and TRSDOS remain unverified on physical hardware.
 
 See the [root README](../README.md) for hardware and [MIT License](../LICENSE).
 
 ## Rebuild and run mock tests
 
-From this directory, run `python build.py` followed by `python test_player.py`. The included restricted assembler generates the CMD and symbol map. The harness exercises the actual Z80 opcodes against mock DOS, UART and keyboard calls. See [TESTS.txt](TESTS.txt) for the original local results. The optional NYSTATE.MID test is skipped unless you supply your own converted song file. No song data is included.
+From this directory, run `python build.py` followed by `python test_player.py`. The included restricted assembler generates the CMD and symbol map. The harness exercises the actual Z80 opcodes against mock DOS, UART and keyboard calls. See [TESTS.txt](TESTS.txt) for v0.7 mock regression results and [BENCHMARK.txt](BENCHMARK.txt) for controlled-clock comparisons. Optional arrangement tests accept your own format-0 MIDI file paths as arguments. No song data is included.
