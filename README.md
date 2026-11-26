@@ -106,6 +106,34 @@ The player supports running status, tempo changes, note and controller messages,
 
 To audition Piano 1 and Brass in an alternating original piece, run `MIDIPLAY PIANOBRS/MID:0`. See the [historical demo documentation](player/README-v0.7.md#original-piano-and-brass-test-piece) for details and test results.
 
+## FreHD direct SD-card playback (MIDISD v0.1, experimental)
+
+The project now includes a second native Z80 player, **MIDISD/CMD**, for browsing and playing compatible MIDI files directly from the FreHD SD card's FAT filesystem. Songs do not need to be imported into a DOS disk image. The original MIDIPLAY/CMD remains unchanged.
+
+| Player | Music source | LDOS command |
+| --- | --- | --- |
+| MIDIPLAY v0.9 | Files inside a DOS disk image | `MIDIPLAY ROCKJAZZ/MID:0` |
+| MIDISD v0.1 | Native FreHD SD card files and folders | `MIDISD` |
+
+### Quick start
+
+1. Import [MIDISD.CMD](player/MIDISD.CMD) into LDOS once, in binary mode.
+2. Copy compatible format-0 MIDI files such as [VOICES.MID](player/VOICES.MID) or [ROCKJAZZ.MID](player/ROCKJAZZ.MID) directly to the FAT SD card using a PC. Use short 8.3 names; a MIDI folder is optional.
+3. Boot LDOS 5.3.1 and enter `MIDISD`. Select files or folders with 1–9; N = next page, R = restart directory, U = parent, BREAK = exit.
+4. Choose 2/3 for raw 25/30 Hz or 4/5 for buffered 25/30 Hz (buffered Nano firmware only). The existing 9600-baud RS-232 bridge and EMT-10 wiring are unchanged.
+
+MIDISD uses native read-only FreHD file commands and a 255-byte RAM read buffer. It retains the v0.9 MIDI engine, instrument/held-note dashboard, MIDI TX monitor, and optional Nano timing protocol. Format 0, PPQN and a maximum 65,535-byte track remain required. End of song returns to LDOS.
+
+**Validation:** compiled Z80 binary, load 6000–8136h, 8,643 bytes. Eleven mocked Z80/FreHD checks passed; physical hardware, firmware compatibility and real-time playback are not yet verified. Use a backup SD card for initial tests. Do not flash FreHD firmware merely to try this experimental player.
+
+- [Download MIDISD.CMD](player/MIDISD.CMD)
+- [Commented assembly source](player/MIDISD.ASM)
+- [Build script](player/build_midisd.py) — run `python3 build_midisd.py` in the player directory
+- [FreHD installation and technical notes](player/README-MIDISD.md)
+- [Simulation test results](player/MIDISD-TESTS.md)
+
+Acknowledgements: George Phillips (TRSvid and GIF/CMD) and Frédéric Vecoven (FreHD). See the FreHD notes for references.
+
 ## License
 
 Original project code, documentation, schematic and original MIDI demonstrations are provided under the [MIT License](LICENSE). Third-party manuals, songs and recordings are not included or licensed by this project.
