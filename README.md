@@ -106,6 +106,22 @@ The player supports running status, tempo changes, note and controller messages,
 
 To audition Piano 1 and Brass in an alternating original piece, run `MIDIPLAY PIANOBRS/MID:0`. See the [historical demo documentation](player/README-v0.7.md#original-piano-and-brass-test-piece) for details and test results.
 
+## Hybrid MIDI and cassette percussion (MIDIDRUM v0.2)
+
+MIDIDRUM extends the FreHD SD-card player with a Z80 software percussion synthesizer using cassette port FFh. The EMT-10 plays melodic instruments over the existing RS-232/MIDI bridge while the cassette output produces kick, snare, hi-hat, metallic ticks, rising/falling chirps and eerie warbles.
+
+- [MIDIDRUM.CMD](player/mididrum/MIDIDRUM.CMD) — compiled LDOS player
+- [MIDIDRUM.ASM](player/mididrum/MIDIDRUM.ASM) — full assembly source
+- [GHOSTWIRE (GHSTWIRE.MID)](player/mididrum/GHSTWIRE.MID) — fast alternative rock, 156–180 BPM
+- [NIGHTFALL (NIGHTFAL.MID)](player/mididrum/NIGHTFAL.MID) — atmospheric alternative rock, 128–148 BPM
+- [Hybrid audio setup, build and validation](player/mididrum/README.md)
+
+Copy the CMD to LDOS and the MIDI files directly to the FreHD SD card. Run `MIDIDRUM`, select a file, then choose 6 (25 Hz) or 7 (30 Hz) for channel-10 cassette percussion. Select 8/9 for automatic beat accompaniment. Connect cassette audio and the EMT-10 to separate powered speaker or mixer inputs; do not tie the outputs together.
+
+The two original demos alternate native Yamaha Piano 1 and Choir on channel 1; channel 10 is intercepted for cassette synthesis. The single EMT-10 does not support independent simultaneous Piano and Choir voices. The new hybrid modes use raw MIDI, not the Nano's buffered protocol. The original MIDIPLAY, MIDISD and Arduino firmware are unchanged.
+
+**Validation:** the hybrid CMD assembled and passed targeted mock opcode routing tests, including both original compositions. Hardware audio quality, timing and hybrid playback are not yet verified.
+
 ## FreHD direct SD-card playback (MIDISD v0.1, experimental)
 
 The project now includes a second native Z80 player, **MIDISD/CMD**, for browsing and playing compatible MIDI files directly from the FreHD SD card's FAT filesystem. Songs do not need to be imported into a DOS disk image. The original MIDIPLAY/CMD remains unchanged.
