@@ -1,0 +1,14 @@
+Built MIDIDRUM.CMD: 10230 bytes, load 6000-8751, entry 6000
+PASS: outgoing status, SysEx reset, percussion velocity/priority/expiry, unchanged legacy modes, panic, UART audio and register preservation, monitor, SD fast path, VLQ boundaries
+PASS: GHSTWIRE.MID: 57.16s, 716 piano/choir notes, 322 percussion hits, 5 peak voices; 4316 -> 3434 bytes (20.4% fewer); exact expanded wire events
+PASS: NIGHTFAL.MID: 87.34s, 508 piano/choir notes, 303 percussion hits, 6 peak voices; 3066 -> 2516 bytes (17.9% fewer); exact expanded wire events
+PASS: SUNSPARK.MID: 80.42s, 860 piano/choir notes, 382 percussion hits, 6 peak voices; 5165 -> 4043 bytes (21.7% fewer); exact expanded wire events
+Targeted assembled-opcode counts (mock CPU; not T-states or timing):
+Buffered SD byte: 23.0 -> 19.0 (+17.4% fewer instructions)
+One-byte VLQ: 55.0 -> 33.0 (+40.0% fewer instructions)
+Two-byte VLQ: 109.0 -> 85.0 (+22.0% fewer instructions)
+TX byte and monitor record: 60.0 -> 37.0 (+38.3% fewer instructions)
+Kick (average per sample incl. delay): 49.8 -> 49.0 (+1.6% fewer instructions)
+Snare (average per sample incl. delay): 54.6 -> 49.1 (+10.2% fewer instructions)
+Ghost (average per sample incl. delay): 64.1 -> 49.0 (+23.5% fewer instructions)
+PASS: raw fast path (zero micros calls), FIFO backpressure, running status, timed lead/ticks, END/STOP/SysEx cleanup, rollover, watchdog and overflow diagnostics

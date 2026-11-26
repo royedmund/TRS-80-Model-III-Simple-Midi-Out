@@ -1,5 +1,7 @@
 # MIDIDRUM v0.2 — FreHD MIDI and cassette percussion
 
+**Experimental:** [MIDIDRUM v0.3 performance build](experimental-v03/README.md). The v0.2 files below remain unchanged.
+
 TRS-80 Model III (48 KB), LDOS 5.3.1, FreHD native FAT files, Yamaha EMT-10, existing 9600-baud RS-232/MIDI interface. Based on [MIDISD v0.1](../README-MIDISD.md); the original player is untouched.
 
 ## Install and play

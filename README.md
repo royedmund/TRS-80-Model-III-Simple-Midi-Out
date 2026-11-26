@@ -106,6 +106,10 @@ The player supports running status, tempo changes, note and controller messages,
 
 To audition Piano 1 and Brass in an alternating original piece, run `MIDIPLAY PIANOBRS/MID:0`. See the [historical demo documentation](player/README-v0.7.md#original-piano-and-brass-test-piece) for details and test results.
 
+## Experimental MIDIDRUM v0.3
+
+A separate [experimental performance build](player/mididrum/experimental-v03/README.md) is available. It reduces MIDI serial traffic in hybrid modes, speeds parsing and monitor recording, uses table-driven cassette percussion and optionally includes a faster Nano bridge. Mock tests pass; physical hardware and AVR compilation remain unverified. The existing v0.2 player and firmware are unchanged.
+
 ## Hybrid MIDI and cassette percussion (MIDIDRUM v0.2)
 
 MIDIDRUM extends the FreHD SD-card player with a Z80 software percussion synthesizer using cassette port FFh. The EMT-10 plays melodic instruments over the existing RS-232/MIDI bridge while the cassette output produces kick, snare, hi-hat, metallic ticks, rising/falling chirps and eerie warbles.
