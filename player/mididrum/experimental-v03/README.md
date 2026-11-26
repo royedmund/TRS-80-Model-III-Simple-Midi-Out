@@ -20,7 +20,7 @@ TRS-80 Model III / LDOS 5.3.1 / FreHD / Yamaha EMT-10, with optional compatible 
 
 ## Rebuild and test
 
-Python 3 standard library only. `python build.py` produces CMD and MAP. See TESTS.txt for local mocked-opcode and host firmware checks. Compile the sketch in Arduino IDE for the target before flashing. Host checks are not AVR compilation.
+Python 3 standard library only. `python build.py` produces CMD and MAP. `python test_player.py` exercises assembled opcode routines with mocked I/O; `python benchmark.py` compares against v0.2 binaries in fallback-v02. Run `g++ -std=c++17 -Itests/mock tests/test_firmware.cpp -o test_firmware && ./test_firmware` for host firmware checks. See TESTS.txt for results. Compile the sketch in Arduino IDE for the target before flashing. Host checks are not AVR compilation.
 
 Real-machine audio quality, timing, UART/SD behaviour and firmware are not yet verified. The clock remains 25/30 Hz, no sub-tick scheduler, multi-voice cassette mixing or multi-block read-ahead in this revision. Test SUNSPARK's 30–40 second cassette-only solo, dense piano passages and BREAK/EOF. Compare v0.2 and v0.3 on the same hardware.
 
