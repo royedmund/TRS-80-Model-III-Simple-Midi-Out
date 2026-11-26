@@ -106,6 +106,17 @@ The player supports running status, tempo changes, note and controller messages,
 
 To audition Piano 1 and Brass in an alternating original piece, run `MIDIPLAY PIANOBRS/MID:0`. See the [historical demo documentation](player/README-v0.7.md#original-piano-and-brass-test-piece) for details and test results.
 
+## Roland SC-55 Sound Canvas — SC55PLAY v0.1 (experimental)
+
+A separate pure MIDI player for the Roland SC-55, using the optimised FreHD native SD-card playback engine. Supports all 16 MIDI channels, channel 10 drums, 32-bit MIDI track sizes, outgoing running status, restricted checksum-validated Roland GS SysEx and a 16-channel dashboard. No cassette output.
+
+- [SC55PLAY prototype and documentation](player/sc55play/README.md)
+- [SC55PLAY.CMD](player/sc55play/SC55PLAY.CMD) — 6,419-byte native Z80 executable
+- [SC55DEMO.MID](player/sc55play/SC55DEMO.MID) — original 16-channel audition
+- [VELVET.MID](player/sc55play/VELVET.MID) — original slow, moody alternative rock composition
+
+Mock tests pass; physical SC-55 and Model III testing pending. The Yamaha EMT-10 and MIDIDRUM players remain unchanged.
+
 ## Experimental MIDIDRUM v0.3
 
 A separate [experimental performance build](player/mididrum/experimental-v03/README.md) is available. It reduces MIDI serial traffic in hybrid modes, speeds parsing and monitor recording, uses table-driven cassette percussion and optionally includes a faster Nano bridge. Mock tests pass; physical hardware and AVR compilation remain unverified. The existing v0.2 player and firmware are unchanged.

@@ -1,0 +1,10 @@
+Built SC55PLAY.CMD: 6419 bytes, load 6000-78AA, entry 6000
+SC55DEMO.MID: 3656 bytes, 36.5 seconds; all 16 channels, peak 6 held notes
+PASS: 16 channels, all 7 channel voice types, running status, drum routing, dashboard; no cassette writes
+PASS: GS DT1 checksum, GM reset, malformed/foreign/oversize SysEx rejected, F7 escape skipped, receiver gap
+PASS: 32-bit MTrk length and borrow, 65535-byte event payload, no track-budget underflow
+PASS: raw cleanup includes CC120 and channel 10
+PASS: inherited SD buffer fast path
+PASS: complete SC55DEMO playback; 894 channel messages, all 16 channels, 2625 wire bytes, EOT
+PASS: VELVET exact wire-expanded comparison: 2527 channel messages, 3 GS SysEx, 7412 wire bytes; no cassette writes, EOT
+Targeted mock I/O tests, not real-machine timing or audio tests.
