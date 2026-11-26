@@ -24,7 +24,9 @@ TRS-80 Model III (48 KB), LDOS 5.3.1, FreHD native FAT files, Yamaha EMT-10, exi
 | GHSTWIRE.MID | GHOSTWIRE: driving piano riffs, rock rhythm, eerie choir | 156–180 BPM | 57.16 s | 716 | 322 | 5 |
 | NIGHTFAL.MID | NIGHTFALL: layered piano, atmospheric choir, heartbeat and metallic effects | 128–148 BPM | 87.34 s | 508 | 303 | 6 |
 
-Both are original E-minor format-0 MIDI files at 96 PPQN, using native Yamaha program 0 (Piano 1) and 8 (Choir) on channel 1, alternating because a single EMT-10 does not independently layer two non-bass voices. Notes are released before program changes. Channel 10 is exclusively local percussion in hybrid mode. These files are not GM arrangements.
+| SUNSPARK.MID | SUNSPARK: modern jazz piano, playful cassette percussion and 10-second solo | 144 BPM | 80.42 s | 860 | 382 | 6 |
+
+SUNSPARK is an original D-major format-0 MIDI file at 96 PPQN. Piano 1 on channel 1, cassette percussion on channel 10. From 30 to 40 seconds all piano notes are released; both audio paths resume at 40 seconds. Choose hybrid mode 6/7. The GHOSTWIRE and NIGHTFALL demos are original E-minor format-0 MIDI files at 96 PPQN, using native Yamaha program 0 (Piano 1) and 8 (Choir) on channel 1, alternating because a single EMT-10 does not independently layer two non-bass voices. Notes are released before program changes. Channel 10 is exclusively local percussion in hybrid mode. These files are not GM arrangements.
 
 ## Cassette percussion routing
 

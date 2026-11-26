@@ -114,6 +114,7 @@ MIDIDRUM extends the FreHD SD-card player with a Z80 software percussion synthes
 - [MIDIDRUM.ASM](player/mididrum/MIDIDRUM.ASM) — full assembly source
 - [GHOSTWIRE (GHSTWIRE.MID)](player/mididrum/GHSTWIRE.MID) — fast alternative rock, 156–180 BPM
 - [NIGHTFALL (NIGHTFAL.MID)](player/mididrum/NIGHTFAL.MID) — atmospheric alternative rock, 128–148 BPM
+- [SUNSPARK (SUNSPARK.MID)](player/mididrum/SUNSPARK.MID) — modern jazz piano, with a cassette-only solo from 30–40 seconds
 - [Hybrid audio setup, build and validation](player/mididrum/README.md)
 
 Copy the CMD to LDOS and the MIDI files directly to the FreHD SD card. Run `MIDIDRUM`, select a file, then choose 6 (25 Hz) or 7 (30 Hz) for channel-10 cassette percussion. Select 8/9 for automatic beat accompaniment. Connect cassette audio and the EMT-10 to separate powered speaker or mixer inputs; do not tie the outputs together.
