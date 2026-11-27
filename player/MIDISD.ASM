@@ -1,7 +1,7 @@
 ; MIDISD/CMD - Model III LDOS 5.3.1, one-way 9600 baud bridge
-; Rev 0.9: 16-byte live hexadecimal MIDI monitor; optional Nano timed FIFO and whitelisted Yamaha SysEx; batched timing and selective display refresh; live EMT-10 voice and held-note dashboard (MIDI channel 1).
+; MIDISD v0.3: hardware-tested fast Nano FIFO; complete MIDI messages, Yamaha SysEx, live EMT-10 voice/held-note dashboard. CRC and per-byte hex recording removed.
 ; Display is passive: never changes the MIDI byte stream.
-; 64x16 video RAM 3C00H-3FFFH; note refresh limited to one per LDOS tick.
+; 64x16 video RAM 3C00H-3FFFH; note refresh during timing waits at most every 3 LDOS ticks.
 ; LDOS 5.3.1 KFLAG$ 429FH bit 0: interrupt-latched BREAK.
 ; Reference: https://www.trs-80.com/sub-disassem-dos-ldos-m3-sys00.htm
 ; Format 0 SMF, PPQN, 16-bit track size and delta/length VLQs.
@@ -86,11 +86,11 @@ hz30:
     ld de,33333
     jp make_threshold
 buf25:
-    ld a,0xfd ; buffered START at 25Hz
+    ld a,0xfd ; fast buffer START at 25Hz
     ld (buffered),a
     jp hz25
 buf30:
-    ld a,0xf9 ; buffered START at 30Hz
+    ld a,0xf9 ; fast buffer START at 30Hz
     ld (buffered),a
     jp hz30
 hz25:
@@ -140,7 +140,7 @@ no_carry:
     ld (target),a
 next_event:
     call checkbreak
-    call refresh_notes
+    ds 3 ; former per-event refresh, zero-filled to match tested binary
     call vlq
     ld b,h
     ld c,l
@@ -308,8 +308,14 @@ skip:
     jp skip
 ; Read 16-bit variable-length quantity (up to 3 bytes).
 vlq:
-    ld hl,0
-    ld b,3
+    call get
+    ld l,a
+    ld h,0
+    bit 7,a
+    ret z
+    and 0x7f
+    ld l,a
+    ld b,2
 vlq_loop:
     call get
     ld c,a
@@ -554,52 +560,17 @@ start_buffer:
     ld b,32
     call vcopy
     ret
+    ds 13 ; preserve hardware-tested load addresses
 buffer_tick:
     ld a,(buffered)
     or a
     ret z
-    ld a,0xf8 ; advance nominal LDOS tick on Nano
+    ld a,0xf8 ; advance one LDOS tick in the Nano FIFO
     jp send
-; Send a musical byte, then record it only after UART accepts it.
-; Transport markers and panic use send directly, not this wrapper.
+; Full status bytes, no CRC or per-byte display processing.
 send_midi:
-    call send
-    push bc
-    push de
-    push hl
-    ; Look up two hex digits and a space. Store in a 16-cell text ring.
-    ld l,a
-    ld h,0
-    ld d,h
-    ld e,l
-    add hl,hl
-    add hl,de
-    ld de,hex_cells
-    add hl,de
-    ld d,h
-    ld e,l
-    ld a,(stream_head)
-    ld l,a
-    ld h,0
-    ld bc,stream_ring
-    add hl,bc
-    ld b,3
-    call vcopy
-    ld a,(stream_head)
-    inc a
-    inc a
-    inc a
-    cp 48
-    jp nz,stream_save_head
-    xor a
-stream_save_head:
-    ld (stream_head),a
-    ld a,1
-    ld (stream_dirty),a
-    pop hl
-    pop de
-    pop bc
-    ret
+    jp send
+    ds 470 ; erased old checked transport and monitor, preserve tested addresses
 send:
     push bc
     ld c,a
@@ -647,8 +618,9 @@ finish:
     jp z,buffer_finish
     ld a,0xfa
 buffer_finish:
-    call send
+    call send ; FA drains, FC aborts
     jp closefile
+    ds 11 ; preserve hardware-tested addresses
 raw_panic:
     ; No BREAK polling during cleanup: held BREAK cannot interrupt it.
     ; release sustain/sostenuto/soft and all notes on every channel
@@ -898,15 +870,18 @@ clear_note_loop:
 ; Refresh monitor independently of note activity (SysEx, CC, other channels).
 ; Use same clock rate as the note display, with separate dirty flag.
 refresh_stream:
-    ld a,(stream_dirty)
+    ret ; live hex monitor disabled in v0.3
+    dw stream_dirty ; unused operand bytes retained for binary identity
     or a
     ret z
     push hl
     ld hl,stream_tick
     ld a,(0x4288)
-    cp (hl)
+    sub (hl)
     pop hl
-    ret z
+    cp 3
+    ret c
+    ld a,(0x4288)
     ld (stream_tick),a
 render_stream:
     push bc
@@ -951,9 +926,11 @@ refresh_notes:
     ld a,(0x4288)
     push hl
     ld hl,refresh_tmp
-    cp (hl)
+    sub (hl)
     pop hl
-    ret z
+    cp 3
+    ret c
+    ld a,(0x4288)
     ld (last_refresh),a
     push bc
     push de
@@ -1064,23 +1041,24 @@ finish_display:
 
 header: db 77,84,104,100,0,0,0,6,0,0,0,1
 tracktag: db 77,84,114,107
-banner: db 13,"TRS-80 MODEL III MIDISD v0.1",13,"Press BREAK to Exit",13,0
-prompt: db 13,"Raw: 2=25Hz, 3=30Hz",13,"Nano buffered: 4=25Hz, 5=30Hz (new firmware ONLY)",13,"Press BREAK to Exit",13,0
+banner: db 13,"TRS-80 MODEL III MIDISD v0.3",13,"Press BREAK to Exit",13,0
+prompt: db 13,"Raw: 2=25Hz, 3=30Hz",13,"Fast Nano: 4=25Hz, 5=30Hz (v0.3 firmware)",13,"Press BREAK to Exit",13,0
+    ds 8
 playingmsg: db 13,"Playing MIDI...",13,"Press BREAK to Exit",13,0
 finishedmsg: db 13,"End of MIDI file.",13,0
 stoppedmsg: db 13,"Playback stopped.",13,0
 usagemsg: db 13,"Usage: MIDISD (no filename)",13,0
 badmsg: db 13,"Cannot read file or unsupported MIDI format.",13,0
 uartmsg: db 13,"Serial UART not ready.",13,0
-dash_title: db "TRS-80 MODEL III MIDISD V0.1      - YAMAHA EMT-10               "
+dash_title: db "TRS-80 MODEL III MIDISD V0.3      - YAMAHA EMT-10               "
 dash_help: db "PLAYING MIDI...   PRESS BREAK TO EXIT   DISPLAY: MIDI CH 1      "
 dash_ended: db "PLAYBACK ENDED - SEE STATUS BELOW                               "
 dash_voice: db "EMT-10 REQUESTED VOICE(S) - PROGRAM NUMBER 0-127:               "
 dash_pedal: db "SUSTAIN: ---  (CC64 SENT)                                       "
 dash_low: db "LOW KEYS (BELOW G3) - BASS IN SPLIT MODE                        "
 dash_high: db "HIGH KEYS (G3 AND ABOVE) - UPPER IN SPLIT MODE                  "
-dash_stream: db "MIDI TX HEX - LAST 16 MUSIC BYTES (NEWEST RIGHT):               "
-dash_split: db "C4=MIDDLE C. TX ONLY. NO TRANSPORT/PANIC. + = MORE NOTES.       "
+dash_stream: db "HEX MONITOR OFF - FAST PLAYBACK / LIVE NOTES ON                 "
+dash_split: db "C4=MIDDLE C. TX NOTES ONLY. + = MORE NOTES.                     "
 pedal_on_text: db "ON "
 pedal_off_text: db "OFF"
 voice_unknown: db "PANEL SETTING / NO PROGRAM SENT         "

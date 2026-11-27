@@ -2,7 +2,7 @@
 
 A minimal, external, one-way MIDI interface for the TRS-80 Model III and Yamaha EMT-10 AWM Sound Expander. No modification to the TRS-80 is required.
 
-**Status (25 November 2026):** The Rev 0.2 hardware interface and MIDIPLAY v0.5 achieved musical playback on a physical TRS-80 Model III and Yamaha EMT-10. BREAK exit and end-of-file return to LDOS were verified by the project owner. MIDIPLAY v0.9 adds optional timestamped Nano buffering, a live hexadecimal MIDI TX monitor and Yamaha-specific effects. v0.9 and the buffered firmware have passed mock Z80 and desktop firmware tests; AVR compilation and physical hardware playback of this release are not yet verified.
+**Status (27 November 2026):** MIDISD v0.3 and the fast Nano firmware are the recommended hardware-tested baseline for direct FreHD SD-card playback. The project owner reported successful playback on the physical TRS-80 Model III and Yamaha EMT-10 after replacing the unsuccessful checked v0.2 protocol with v0.3. Extended reliability and precise timing measurements remain open. MIDIPLAY v0.9 remains available for DOS-image playback.
 
 ## How it works
 
@@ -57,7 +57,7 @@ Open `firmware/serial_to_midi/serial_to_midi.ino` in the Arduino IDE. Select the
 
 The original transparent bridge does not interpret data or add line endings. Do not send debugging text over the MIDI UART.
 
-For optional buffered playback, use the [v0.8/v0.9 buffered Nano sketch](player/firmware/serial_to_midi_buffered/serial_to_midi_buffered.ino). It retains the same wiring and baud rates, adds a 192-entry timestamped FIFO (960 bytes of SRAM) and nominal 160 ms lookahead, with a communications watchdog and BREAK cancellation. The original sketch remains available as a fallback. **Only select buffered modes 4/5 with the new firmware installed.** The timed protocol reserves certain MIDI real-time bytes; the new sketch is not a transparent general-purpose MIDI clock bridge. See the [player documentation](player/README.md) for installation, limitations and tests.
+For MIDISD v0.3 use the [fast Nano buffered sketch](player/firmware/serial_to_midi_fast/serial_to_midi_fast.ino). Same wiring and baud rates, 512-byte FIFO, nominal 160 ms lookahead, short-underrun recovery and active-note/pedal cleanup. **Install matching v0.3 firmware before selecting modes 4/5.** The [older v0.8/v0.9 buffered sketch](player/firmware/serial_to_midi_buffered/serial_to_midi_buffered.ino) remains available for legacy MIDIPLAY, as does the transparent bridge. These timed protocols are not general-purpose MIDI clock bridges.
 
 ## First hardware test
 
@@ -117,31 +117,27 @@ A separate pure MIDI player for the Roland SC-55, using the optimised FreHD nati
 
 Mock tests pass; physical SC-55 and Model III testing pending. The Yamaha EMT-10 players remain unchanged.
 
-## FreHD direct SD-card playback (MIDISD v0.1, experimental)
+## FreHD direct SD-card playback (MIDISD v0.3 — recommended)
 
-The project now includes a second native Z80 player, **MIDISD/CMD**, for browsing and playing compatible MIDI files directly from the FreHD SD card's FAT filesystem. Songs do not need to be imported into a DOS disk image. The original MIDIPLAY/CMD remains unchanged.
+Native Z80 player for compatible MIDI files directly on the FreHD FAT SD card; songs need not be imported into DOS disk images.
 
 | Player | Music source | LDOS command |
 | --- | --- | --- |
-| MIDIPLAY v0.9 | Files inside a DOS disk image | `MIDIPLAY ROCKJAZZ/MID:0` |
-| MIDISD v0.1 | Native FreHD SD card files and folders | `MIDISD` |
+| MIDISD v0.3 | Native FreHD SD card | `MIDISD` |
+| MIDIPLAY v0.9 | DOS disk image | `MIDIPLAY ROCKJAZZ/MID:0` |
 
-### Quick start
+1. Install [MIDISD.CMD](player/MIDISD.CMD) in LDOS in binary mode. Upload the [matching fast Nano firmware](player/firmware/serial_to_midi_fast/serial_to_midi_fast.ino).
+2. Copy [LINKTEST.MID](player/LINKTEST.MID), [VOICES.MID](player/VOICES.MID) or [ROCKJAZZ.MID](player/ROCKJAZZ.MID) directly onto the FAT SD card, using short 8.3 names.
+3. Boot LDOS 5.3.1 and run `MIDISD`. Select files/folders with 1–9; N next page, R restart, U parent, BREAK exit.
+4. Choose 2/3 for raw 25/30 Hz or 4/5 for fast buffered 25/30 Hz, matching your actual LDOS clock. Mode 4 is the starting point for a 25 Hz system.
 
-1. Import [MIDISD.CMD](player/MIDISD.CMD) into LDOS once, in binary mode.
-2. Copy compatible format-0 MIDI files such as [VOICES.MID](player/VOICES.MID) or [ROCKJAZZ.MID](player/ROCKJAZZ.MID) directly to the FAT SD card using a PC. Use short 8.3 names; a MIDI folder is optional.
-3. Boot LDOS 5.3.1 and enter `MIDISD`. Select files or folders with 1–9; N = next page, R = restart directory, U = parent, BREAK = exit.
-4. Choose 2/3 for raw 25/30 Hz or 4/5 for buffered 25/30 Hz (buffered Nano firmware only). The existing 9600-baud RS-232 bridge and EMT-10 wiring are unchanged.
+Read-only FreHD native file commands, 255-byte reads, format 0/PPQN/65,535-byte track limit, Yamaha EMT-10 messages, live voice and note display. CRC/sequence framing and per-byte hexadecimal recording are removed from the playback path. 512-byte FIFO, nominal 160 ms lookahead, complete timing groups, short-delay rebuffering, note-off/pedal cleanup.
 
-MIDISD uses native read-only FreHD file commands and a 255-byte RAM read buffer. It retains the v0.9 MIDI engine, instrument/held-note dashboard, MIDI TX monitor, and optional Nano timing protocol. Format 0, PPQN and a maximum 65,535-byte track remain required. End of song returns to LDOS.
+**Validation:** 9,109-byte CMD, load 6000h–8300h. Assembly reproduces the hardware-tested binary. Owner reported successful physical playback on 27 November 2026. Mock tests covered seven files at both buffered clock rates and raw 25 Hz; long-term physical timing/reliability not quantified.
 
-**Validation:** compiled Z80 binary, load 6000–8136h, 8,643 bytes. Eleven mocked Z80/FreHD checks passed; physical hardware, firmware compatibility and real-time playback are not yet verified. Use a backup SD card for initial tests. Do not flash FreHD firmware merely to try this experimental player.
+[Assembly source](player/MIDISD.ASM) · [Build script](player/build_midisd.py) · [Installation and technical notes](player/README-MIDISD.md) · [Regression results](player/MIDISD-TESTS.md)
 
-- [Download MIDISD.CMD](player/MIDISD.CMD)
-- [Commented assembly source](player/MIDISD.ASM)
-- [Build script](player/build_midisd.py) — run `python3 build_midisd.py` in the player directory
-- [FreHD installation and technical notes](player/README-MIDISD.md)
-- [Simulation test results](player/MIDISD-TESTS.md)
+The checked v0.2 experiment remains on [midisd-checked-v02](https://github.com/royedmund/TRS-80-Model-III-Simple-Midi-Out/tree/midisd-checked-v02), not recommended for playback.
 
 Acknowledgements: George Phillips (TRSvid and GIF/CMD) and Frédéric Vecoven (FreHD). See the FreHD notes for references.
 

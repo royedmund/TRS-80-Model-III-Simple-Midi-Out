@@ -1,21 +1,19 @@
-# MIDISD v0.1 validation
+# MIDISD v0.3 validation
 
-Binary under test: commit `c76f68bdfd8cf7846f07c95aaf995a376d0bd4d3`, `player/MIDISD.CMD` (8,643 bytes; load 6000–8136h). Original v0.9 CMD was independently reproduced byte-for-byte before the new build. New CMD load records and transfer address round-tripped successfully.
+- Hardware: owner reported successful physical Model III / Yamaha EMT-10 playback with the new pair on 27 November 2026, following the unsuccessful v0.2 test. Exact long-duration metrics not recorded.
+- Binary: tested CMD 9109 bytes, 6000h–8300h, Git blob 6afd5600e2207c987aeea06d9755708356a42067. Reconstructed full assembly matches byte for byte.
+- Z80 mock: all seven files passed buffered modes 4/5 and raw mode 2, exact outgoing musical bytes against independent reference decoder, file closed and port restored at exit.
+- Nano host C++ mock: raw MIDI, complete groups, late-start recovery, EOF at both clocks, temporary 600 ms stall, BREAK releases held notes/pedals, partial SysEx termination, FIFO overflow/restart, RX overflow/watchdog, incompatible v0.2 START, micros rollover and UART backpressure all passed.
+- All fourteen buffered wire streams replayed with modeled 9600 baud, 100 ms input delay and output pressure; no missing musical bytes or underruns in those runs. Peak modeled FIFO occupancy 87/512.
 
-The following checks were executed against the compiled Z80 bytes using a restricted instruction simulator with mocked LDOS timer, ROM keyboard/console, UART and FreHD command/data/status ports. The mock did not execute DOS file calls, and each case checked restoration of the external I/O control value. This was not full-system or real-hardware emulation.
+| Test song | Musical bytes | Peak 25 Hz | Peak 30 Hz |
+| --- | ---: | ---: | ---: |
+| LINKTEST | 113 | 31 | 31 |
+| AFTRGLOW | 4492 | 42 | 46 |
+| ALLENTWN | 9976 | 57 | 57 |
+| COMPTMAX | 8112 | 87 | 87 |
+| CORNFLAK | 11223 | 57 | 57 |
+| SHESAWAY | 5157 | 60 | 60 |
+| SILENT | 12369 | 60 | 60 |
 
-| Test | Result |
-|---|---|
-| Root MIDI file, four-byte open reply, expected MIDI output | PASS |
-| Eight-byte TRSvid open reply; metadata drain; 255 + 47 byte reads across block boundary | PASS |
-| Directory pagination, exclusion of .DSK, lowercase .mid extension | PASS |
-| Nested directories and parent navigation | PASS |
-| Buffered Nano transport START and natural END markers | PASS |
-| FreHD read error and file close | PASS |
-| Premature EOF and file close | PASS |
-| Absent interface | PASS |
-| Stalled BUSY status timeout | PASS |
-| BREAK while playing, file close and cleanup | PASS |
-| BREAK in browser without opening a file | PASS |
-
-Real-machine verification still required: FreHD firmware variation, actual directory structure and path semantics, SD latency, keyboard release, screen control codes and LDOS interrupt timing. No firmware was changed. The ad hoc simulator was run during development; its source is not included in this branch.
+Only LINKTEST is needed for the published test scripts. Third-party arrangements and their wire streams are excluded. Tests are host simulations, not cycle-accurate or electrical models. Historical v0.1 results remain in Git history.

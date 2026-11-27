@@ -2,9 +2,9 @@
 
 This version is based on MIDIPLAY v0.8 and retains the live channel-1 dashboard, optimized timing, raw 9600 baud mode and clean LDOS exit. The hardware-tested version is v0.5; v0.9 has been tested with a mock Z80 and host-compiled firmware, not on actual AVR hardware.
 
-## Alternative: direct FreHD SD-card playback (MIDISD v0.1)
+## Recommended: direct FreHD SD-card playback (MIDISD v0.3)
 
-Use [MIDISD.CMD](MIDISD.CMD) to browse native FAT folders and play compatible .MID files directly from the FreHD SD card, without importing the songs into DOS images. Import the executable once, then run `MIDISD` in LDOS. The v0.9 MIDI engine, timing modes, dashboard and Nano firmware are retained; MIDIPLAY remains unchanged. The experimental FreHD edition passed 11 mocked tests but has not been verified on physical hardware. See [setup and build instructions](README-MIDISD.md), [source](MIDISD.ASM) and [test results](MIDISD-TESTS.md).
+Use [MIDISD.CMD](MIDISD.CMD) to browse and play compatible .MID files directly from FreHD. The hardware-tested v0.3 uses [fast Nano firmware](firmware/serial_to_midi_fast/serial_to_midi_fast.ino), a 512-byte FIFO, 160 ms nominal lookahead and a streamlined live voice/note dashboard. See [installation and build instructions](README-MIDISD.md), [source](MIDISD.ASM) and [tests](MIDISD-TESTS.md). The remaining documentation on this page describes the legacy MIDIPLAY v0.9 DOS-image player and its original firmware.
 
 ## Install and test
 
