@@ -1,3 +1,24 @@
+SC55PLAY v0.2 — fast buffer integration
+Built SC55PLAY.CMD: 5415 bytes, load 6000-74CE, entry 6000.
+Reassembled v0.1 from original source, matched original CMD byte-for-byte.
+v0.2 removes hex stream recording/rendering and refreshes only on timing waits.
+PASS Z80/FreHD mock exact MIDI byte comparison against independent decoder:
+SC55DEMO: 894 messages, all 16 channels, 1 GS SysEx, 2625 musical bytes.
+ mode 2: 914 ticks, 2865 wire bytes incl 240-byte raw cleanup
+ mode 4: 914 ticks, 3541 wire bytes
+ mode 5: 1097 ticks, 3724 wire bytes
+VELVET: 2527 messages, 12 channels, 3 GS SysEx, 7412 musical bytes.
+ mode 2: 2662 ticks, 7652 wire bytes incl 240-byte raw cleanup
+ mode 4: 2662 ticks, 10076 wire bytes
+ mode 5: 3193 ticks, 10607 wire bytes
+PASS all four buffered streams identical to v0.1, raw musical stream and timing unchanged.
+PASS BREAK emits FC and closes file; natural EOF emits FA; no unexpected output ports.
+PASS independent v0.3 Nano host C++ unit tests.
+PASS synthetic 16-channel stream with GS reset, controller running status, note-on/off running status and 1600 note pairs per channel cycle: 16123 music bytes per clock, peak 32/512 at 25 Hz and 39/512 at 30 Hz, zero underruns. Modeled 9600-baud arrival, 100 ms input stall, UART backpressure.
+Exact SC55DEMO/VELVET cross-runtime Nano replay not completed here; node test_sc55.js generates fixtures for the existing test_fast.cpp harness. Host tests are not cycle-accurate/AVR electrical/audio tests.
+Physical SC-55 playback remains pending.
+
+Historical v0.1 validation:
 Built SC55PLAY.CMD: 6419 bytes, load 6000-78AA, entry 6000
 SC55DEMO.MID: 3656 bytes, 36.5 seconds; all 16 channels, peak 6 held notes
 PASS: 16 channels, all 7 channel voice types, running status, drum routing, dashboard; no cassette writes

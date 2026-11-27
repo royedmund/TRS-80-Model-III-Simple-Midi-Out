@@ -107,16 +107,16 @@ The player supports running status, tempo changes, note and controller messages,
 
 To audition Piano 1 and Brass in an alternating original piece, run `MIDIPLAY PIANOBRS/MID:0`. See the [historical demo documentation](player/README-v0.7.md#original-piano-and-brass-test-piece) for details and test results.
 
-## Roland SC-55 Sound Canvas — SC55PLAY v0.1 (experimental)
+## Roland SC-55 Sound Canvas — SC55PLAY v0.2 (experimental)
 
-A separate pure MIDI player for the Roland SC-55, using the optimised FreHD native SD-card playback engine. Supports all 16 MIDI channels, channel 10 drums, 32-bit MIDI track sizes, outgoing running status, restricted checksum-validated Roland GS SysEx and a 16-channel dashboard. No cassette output.
+A separate pure MIDI player for the Roland SC-55, using the optimised FreHD native SD-card playback engine. Supports all 16 MIDI channels, channel 10 drums, 32-bit MIDI track sizes, outgoing running status, restricted checksum-validated Roland GS SysEx and a 16-channel dashboard. No cassette output. v0.2 uses the same [fast v0.3 Nano firmware](player/firmware/serial_to_midi_fast/serial_to_midi_fast.ino) as MIDISD, including the 512-byte FIFO and 160 ms nominal lookahead. The previous one-byte timing marker protocol is retained; per-byte hexadecimal recording is removed.
 
 - [SC55PLAY prototype and documentation](player/sc55play/README.md)
-- [SC55PLAY.CMD](player/sc55play/SC55PLAY.CMD) — 6,419-byte native Z80 executable
+- [SC55PLAY.CMD](player/sc55play/SC55PLAY.CMD) — 5,415-byte native Z80 executable
 - [SC55DEMO.MID](player/sc55play/SC55DEMO.MID) — original 16-channel audition
 - [VELVET.MID](player/sc55play/VELVET.MID) — original slow, moody alternative rock composition
 
-Mock tests pass; physical SC-55 and Model III testing pending. The Yamaha EMT-10 players remain unchanged.
+Both Roland demos passed exact-stream Z80/FreHD mock regression checks in raw and buffered modes; a separate multi-channel host-side Nano stress test passed. Physical SC-55 playback and cycle-accurate timing remain unverified. The Yamaha EMT-10 players and shared Nano firmware remain unchanged.
 
 ## FreHD direct SD-card playback (MIDISD v0.3 — recommended)
 

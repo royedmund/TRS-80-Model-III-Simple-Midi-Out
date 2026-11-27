@@ -1,8 +1,11 @@
-; SC55PLAY v0.1 prototype for TRS-80 Model III / LDOS 5.3.1 / FreHD.
+; SC55PLAY v0.2 fast-buffer prototype for TRS-80 Model III / LDOS 5.3.1 / FreHD.
 ; Derived from the project's MIDIDRUM v0.3 and MIDISD v0.1, MIT license.
 ; Native Format 0, PPQN; 32-bit MTrk length, 16-bit event delta/length VLQs.
 ; MIDI only. No cassette OUT. Existing UART at 9600, Nano MIDI at 31250.
 ; GS DT1/GM System On validation, bounded message buffer, receiver gap.
+; Matches MIDISD v0.3 Nano: FD/F9 START, F8 tick, FA drain, FC abort.
+; No CRC/sequence framing. Wire running status is preserved; screen refresh
+; only during tick waits. No per-byte hex monitor in this version.
 ; Manual reference: Roland SC-55 Owner's Manual pp. 18-24, 40-41, 66-84.
 ; FreHD browser/reader credited to George Phillips and Frederic Vecoven.
 org 0x6000
@@ -82,11 +85,11 @@ hz30:
     ld de,33333
 jp make_threshold
 buf25:
-ld a,0xfd
+ld a,0xfd ; fast Nano START 25 Hz
 ld (buffered),a
 jp hz25
 buf30:
-ld a,0xf9
+ld a,0xf9 ; fast Nano START 30 Hz
 ld (buffered),a
 jp hz30
 hz25:
@@ -135,7 +138,6 @@ ld a,(0x4288)
     ld (target),a
 next_event:
 call checkbreak
-call refresh_notes
 call vlq
 ld b,h
 ld c,l
@@ -618,36 +620,9 @@ jp send_midi
 send_status_same:
 pop hl
 ret
-; Record actual transmitted bytes; hexadecimal rendering deferred to display.
+; Forward musical bytes directly, without per-byte monitor work.
 send_midi:
-call send
-push af
-push hl
-push de
-ld e,a
-ld a,(stream_head)
-ld l,a
-ld h,0
-push de
-ld de,stream_ring
-add hl,de
-pop de
-ld (hl),e
-inc a
-and 15
-ld (stream_head),a
-ld a,(stream_count)
-cp 16
-jp z,stream_full
-inc a
-ld (stream_count),a
-stream_full:
-ld a,1
-ld (stream_dirty),a
-pop de
-pop hl
-pop af
-ret
+jp send
 send:
 push bc
 ld c,a
@@ -793,12 +768,7 @@ channel_labels:
     ld hl,0x3fc0
     ld (0x4020),hl
     call clear_parts
-    xor a
-    ld (stream_count),a
-    ld (stream_head),a
-    ld (stream_dirty),a
     ld a,(0x4288)
-    ld (stream_tick),a
     ld (last_refresh),a
     ld a,1
     ld (display_on),a
@@ -872,83 +842,7 @@ part_addr:
     ld h,0
     add hl,de
     ret
-refresh_stream:
-ld a,(stream_dirty)
-or a
-ret z
-push hl
-ld hl,stream_tick
-ld a,(0x4288)
-sub (hl)
-pop hl
-cp 3
-ret c
-ld a,(0x4288)
-ld (stream_tick),a
-render_stream:
-push bc
-push de
-push hl
-xor a
-ld (stream_dirty),a
-ld hl,0x3f40
-ld b,48
-call vblank
-ld a,(stream_count)
-or a
-jp z,stream_render_done
-; Right-align short streams, then traverse from oldest to newest.
-ld c,a
-ld a,16
-sub c
-ld l,a
-ld h,0
-ld d,h
-ld e,l
-add hl,hl
-add hl,de
-ld de,0x3f40
-add hl,de
-ld (stream_dest),hl
-ld a,(stream_head)
-sub c
-and 15
-ld (stream_index),a
-ld b,c
-stream_render_loop:
-push bc
-ld a,(stream_index)
-ld l,a
-ld h,0
-ld de,stream_ring
-add hl,de
-ld l,(hl)
-ld h,0
-ld d,h
-ld e,l
-add hl,hl
-add hl,de
-ld de,hex_cells
-add hl,de
-ld d,h
-ld e,l
-ld hl,(stream_dest)
-ld b,3
-call vcopy
-ld (stream_dest),hl
-ld a,(stream_index)
-inc a
-and 15
-ld (stream_index),a
-pop bc
-djnz stream_render_loop
-stream_render_done:
-pop hl
-pop de
-pop bc
-ret
 refresh_notes:
-    call refresh_stream
     push hl
     ld hl,last_refresh
     ld a,(0x4288)
@@ -1037,7 +931,6 @@ finish_display:
     ret z
     xor a
     ld (display_on),a
-    call render_stream
     call clear_parts
     call render_parts
     ld hl,0x3c40
@@ -1049,19 +942,19 @@ finish_display:
     ret
 header: db 77,84,104,100,0,0,0,6,0,0,0,1
 tracktag: db 77,84,114,107
-banner: db 13,"TRS-80 MODEL III SC55PLAY v0.1",13,"Press BREAK to Exit",13,0
-prompt: db 13,"RAW MIDI: 2=25Hz, 3=30Hz",13,"NANO TIMED: 4=25Hz, 5=30Hz (timed firmware ONLY)",13,"Press BREAK to Exit",13,0
+banner: db 13,"TRS-80 MODEL III SC55PLAY v0.2",13,"Press BREAK to Exit",13,0
+prompt: db 13,"RAW MIDI: 2=25Hz, 3=30Hz",13,"FAST NANO: 4=25Hz, 5=30Hz (v0.3 firmware)",13,"Press BREAK to Exit",13,0
 playingmsg: db 13,"Playing MIDI...",13,0
 finishedmsg: db 13,"End of MIDI file.",13,0
 stoppedmsg: db 13,"Playback stopped.",13,0
 usagemsg: db 13,"Usage: SC55PLAY (no filename)",13,0
 badmsg: db 13,"Cannot read file or unsupported MIDI format.",13,0
 uartmsg: db 13,"Serial UART not ready.",13,0
-dash_title: db "TRS-80 MODEL III SC55PLAY V0.1 - ROLAND SOUND CANVAS            "
+dash_title: db "TRS-80 MODEL III SC55PLAY V0.2 - ROLAND SOUND CANVAS            "
 dash_help: db "PLAYING MIDI - BREAK TO EXIT - 16 CHANNELS (TX ONLY)            "
 dash_ended: db "PLAYBACK ENDED - SEE STATUS BELOW                               "
 dash_columns: db "CH   PRG     BANK     PEAK      CH   PRG     BANK     PEAK      "
-dash_stream: db "MIDI TX HEX - LAST 16 MUSIC BYTES (NEWEST RIGHT)                "
+dash_stream: db "FAST PLAYBACK - PROGRAM / BANK / PEAK VELOCITY                  "
 unknown_digits: db "---"
 channel_rows:
 db "01   ---     ---      000       09   ---     ---      000       "
@@ -1090,31 +983,7 @@ part_dest: dw 0
 part_program: ds 16
 part_bank: ds 16
 part_peak: ds 16
-stream_head: db 0
-stream_dirty: db 0
-stream_tick: db 0
-stream_ring: ds 16
-stream_count: db 0
-stream_index: db 0
-stream_dest: dw 0
 tx_status: db 0
-hex_cells:
-db "00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F "
-db "10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F "
-db "20 21 22 23 24 25 26 27 28 29 2A 2B 2C 2D 2E 2F "
-db "30 31 32 33 34 35 36 37 38 39 3A 3B 3C 3D 3E 3F "
-db "40 41 42 43 44 45 46 47 48 49 4A 4B 4C 4D 4E 4F "
-db "50 51 52 53 54 55 56 57 58 59 5A 5B 5C 5D 5E 5F "
-db "60 61 62 63 64 65 66 67 68 69 6A 6B 6C 6D 6E 6F "
-db "70 71 72 73 74 75 76 77 78 79 7A 7B 7C 7D 7E 7F "
-db "80 81 82 83 84 85 86 87 88 89 8A 8B 8C 8D 8E 8F "
-db "90 91 92 93 94 95 96 97 98 99 9A 9B 9C 9D 9E 9F "
-db "A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF "
-db "B0 B1 B2 B3 B4 B5 B6 B7 B8 B9 BA BB BC BD BE BF "
-db "C0 C1 C2 C3 C4 C5 C6 C7 C8 C9 CA CB CC CD CE CF "
-db "D0 D1 D2 D3 D4 D5 D6 D7 D8 D9 DA DB DC DD DE DF "
-db "E0 E1 E2 E3 E4 E5 E6 E7 E8 E9 EA EB EC ED EE EF "
-db "F0 F1 F2 F3 F4 F5 F6 F7 F8 F9 FA FB FC FD FE FF "
 buflabel: db "NANO BUFFER ON - 160MS LOOKAHEAD"
 rawlabel: db "RAW MIDI TX - NO NANO LOOKAHEAD "
 sxlen: db 0
