@@ -115,6 +115,7 @@ A separate pure MIDI player for the Roland SC-55, using the optimised FreHD nati
 - [SC55PLAY.CMD](player/sc55play/SC55PLAY.CMD) — 5,588-byte native Z80 executable
 - [SC55DEMO.MID](player/sc55play/SC55DEMO.MID) — original 16-channel audition
 - [VELVET.MID](player/sc55play/VELVET.MID) — original slow, moody alternative rock composition
+- [IGNITN16.MID](player/sc55play/IGNITN16.MID) — **IGNITION 16**, original upbeat rock showcase featuring all 16 channels and all 128 GM capital instruments (3:57, 136–148 BPM)
 
 Both Roland demos passed exact-stream Z80/FreHD mock regression checks in raw and buffered modes; a separate multi-channel host-side Nano stress test passed. Physical SC-55 playback and cycle-accurate timing remain unverified. The Yamaha EMT-10 players and shared Nano firmware remain unchanged.
 

@@ -31,8 +31,17 @@ Use exactly the existing MIDISD v0.3 fast firmware; no separate Roland sketch. D
 |---|---|---|---|
 | SC55DEMO.MID | All 16 channels across contrasting ensembles, GS reset, banks, stereo effects | 36.5 s | 120 BPM |
 | VELVET.MID | VELVET STATIC: moody alternative rock with 12 parts, layered guitar, piano, bass, pads, choir, drums and atmospheric effects | 106.25 s | 96 BPM |
+| [IGNITN16.MID](IGNITN16.MID) | IGNITION 16: upbeat rock, all 16 channels and 128 GM capital tones | 237.474 s | 136–148 BPM |
 
 VELVET uses GS Hall 2 and Chorus 3, independent pan, expression, pitch bend, modulation and reverse cymbal transitions. Score limits held notes to nine to leave headroom for the original SC-55's 24 partials. Actual release tails and partial usage require listening tests.
+
+### IGNITION 16 — Full Throttle
+
+Original E minor rock showcase, 145 bars including setup, intro and finale. Dedicated bass (channel 1), power chords (2), electric piano (3), standard drums (10), and rotating solos across channels 4–9 and 11–16. All 128 GM capital tones featured in order, not every GS variation or alternate drum kit. Includes GS reset (device ID 10h), channel volume, stereo pan, reverb/chorus sends, modulation and pitch bend. The reset may change existing sound module settings.
+
+SMF format 0, 96 PPQN, 42,477 bytes, 5,457 note-ons, peak eight logically held notes. Copy the FAT 8.3 filename to the FreHD SD card and run SC55PLAY v0.2.1, choosing mode 4 (25 Hz) or 5 (30 Hz) to match LDOS. Use the shared fast Nano v0.3 firmware. CLEAR returns to the browser and BREAK exits. Start with low volume.
+
+Validation: the MIDI was independently parsed; all 128 programs and 16 channels are present, with no overlapping same-pitch keys or unmatched offs. Modeled SC55PLAY streams at both rates passed actual Nano firmware host tests (30,685 musical bytes each, peak FIFO 43/512, zero underruns); 100 ms input delay and UART backpressure were simulated. Peak modeled rolling one-second traffic including markers was 197 bytes at 25 Hz and 200 at 30 Hz. Actual assembled Z80 playback of this composition, physical SC-55 audio and partial use remain unverified. Held MIDI notes do not account for release tails or multi-partial tones.
 
 ## Build and validation
 
