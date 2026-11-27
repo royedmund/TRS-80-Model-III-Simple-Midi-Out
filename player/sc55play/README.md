@@ -1,6 +1,6 @@
 # SC55PLAY v0.1 — Experimental Roland Sound Canvas MIDI player
 
-TRS-80 Model III (48 KB), LDOS 5.3.1, FreHD native SD FAT filesystem, existing 9600-baud RS-232/MAX3232/Arduino Nano bridge to Roland SC-55 MIDI IN (31,250 baud). Pure MIDI output: no cassette percussion or cassette output writes. Derived from MIDIDRUM v0.3 and MIDISD v0.1. Original players remain unchanged.
+TRS-80 Model III (48 KB), LDOS 5.3.1, FreHD native SD FAT filesystem, existing 9600-baud RS-232/MAX3232/Arduino Nano bridge to Roland SC-55 MIDI IN (31,250 baud). Pure MIDI output: no cassette percussion or cassette output writes. Derived from MIDISD v0.1 and earlier experimental playback optimisations. Original players remain unchanged.
 
 **Prototype only:** assembled and targeted mock Z80 tests passed. Not tested on physical TRS-80 or SC-55 hardware. No firmware update required for initial raw-mode testing.
 

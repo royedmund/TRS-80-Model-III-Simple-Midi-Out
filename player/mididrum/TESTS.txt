@@ -1,8 +1,0 @@
-Local validation, 26 November 2026
-PASS: MIDIDRUM.CMD 9606 bytes, load 6000–84E9h, entry 6000h.
-PASS: CMD routing, running status, 8 percussion note mappings, FFh waveform/idle, expiry/priority, original mode and panic routing.
-PASS: GHOSTWIRE SMF, 57.16s, 716 melodic notes, 322 drum hits, 5 peak held notes, 4316 exact melodic UART bytes; no percussion bytes leaked.
-PASS: NIGHTFALL SMF, 87.34s, 508 melodic notes, 303 drum hits, 6 peak held notes, 3066 exact melodic UART bytes; no percussion bytes leaked.
-Scope: targeted mocked opcode tests, not full machine emulation. Hardware playback and audio listening tests pending.
-
-SUNSPARK: format 0, 144 BPM; 860 piano notes, 382 percussion hits; peak held piano notes 6. Targeted mocked routing and the 30–40-second score-level percussion solo verified locally; physical timing and audio remain untested.
