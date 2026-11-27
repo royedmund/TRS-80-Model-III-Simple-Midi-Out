@@ -90,6 +90,7 @@ The native Z80 player streams compatible format-0 SMF files from disk. LDOS 5.3.
 - [NYPLAY.BAS](player/NYPLAY.BAS) — BASIC player for converted data
 - [SPLIT27.MID](player/SPLIT27.MID) — all 27 two-voice Bass Split combinations ([instructions](player/README-v0.7.md#two-voice-bass-split-mode-emt-10))
 - [VOICES.MID](player/VOICES.MID) — original 12-voice EMT-10 demo
+- [ATMOSPHX.MID](player/ATMOSPHX.MID) — **AtmosphereX**, original atmospheric E minor composition for EMT-10 strings, choir and occasional piano (3:38; medium pace; 80 bars; format 0).
 - [PIANOBRS.MID](player/PIANOBRS.MID) — original 38.4-second Piano 1 / Brass test, with [generator](player/make_piano_brass.py)
 - [convert_midi.py](player/convert_midi.py) — desktop conversion utility
 - [Player documentation](player/README.md)

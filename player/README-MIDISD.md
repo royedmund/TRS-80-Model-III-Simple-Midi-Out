@@ -10,6 +10,10 @@ Install the matching player and firmware together. On 27 November 2026 the owner
 4. Run MIDISD, select the file, then mode 2 raw 25 Hz for four piano notes followed by three chords. Repeat mode 4 buffered 25 Hz. Modes 3/5 are the equivalent 30 Hz modes; match actual LDOS clock.
 5. D13 blinks during buffered playback, steady on means fault, off idle/raw. Test clean BREAK, natural EOF and long songs.
 
+## Atmospheric demonstration — AtmosphereX
+
+[ATMOSPHX.MID](ATMOSPHX.MID) is an original 3:38 atmospheric nocturne in E minor, with strings and choir alternating with two short piano interludes. It uses native EMT-10 attack, brightness, polyphony, touch and pedal settings. Format 0, channel 1, 96 PPQN, 5,134 bytes; FreHD-compatible 8.3 filename. Copy directly to the SD card and select mode 4 (25 Hz buffered) or mode 5 (30 Hz buffered), according to the LDOS timer. Simulated playback using MIDISD v0.3.1 and the v0.3 Nano firmware delivered all 4,024 musical bytes at both rates, with zero simulated buffer underruns (peak FIFO 37/512 and 39/512 respectively). Physical audio audition remains pending; no player or firmware changes are required.
+
 ## Implementation
 
 FD/F9 start 25/30 Hz, F8 advances timing, FA drains, FC aborts. The old checked F4/F5 protocol is incompatible. Full status bytes, no CRC, sequence numbers or trailers. One timing byte per tick. The 512-byte circular FIFO releases complete timing groups with nominal 160 ms lead. Short delays rebuffer rather than abort; occupancy-based slew up to 200 us/tick outside the normal range; fractional 30 Hz clock. Two-second link watchdog, RX/FIFO overflow protection, nonblocking hardware UART. 256-byte held-key bitmap; release pedals, explicit tracked note-offs and CC123 for used channels plus channel 1. Terminate partial SysEx on abort. Internal faults: 1 FIFO overflow, 2 SoftwareSerial overflow, 3 watchdog, 4 incompatible checked START. LED indicates fault, not its code.
