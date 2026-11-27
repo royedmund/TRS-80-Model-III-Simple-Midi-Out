@@ -3,18 +3,21 @@ const fs=require('fs'),path=require('path');
 function verify(cmd,sym,demos){
 function assert(v,m){if(!v)throw Error(m)}
 function eq(a,b){return a.length===b.length&&a.every((v,i)=>v===b[i])}
-function cpu(mid,mode,stopAt=-1){
+function cpu(mid,mode,stopAt=-1,scenario=null){
  let m=new Uint8Array(65536),i=0;while(cmd[i]===1){let len=cmd[i+1]||256,addr=cmd[i+2]|cmd[i+3]<<8;m.set(cmd.slice(i+4,i+len+2),addr);i+=len+2}
  let pc=cmd[i+2]|cmd[i+3]<<8,sp=0xf000,r=new Uint8Array(8),z=false,c=false,keys=[49,0,mode.charCodeAt(0)],ki=0,output=[],timeline=[],consoleText="",pos=0,opened=false,port=0x20,size=0,st=0,resp=[],payload=[],status=0x58,dirDone=false,ticks=0,refreshes=0,closed=0;
  m[0x4288]=250;
+ let opens=[],paths=[],clearAt=0,clearHeld=0,breakInjected=false; if(scenario)keys=scenario.keys.slice();
  const word=a=>m[a]|m[(a+1)&65535]<<8,wr=(a,v)=>{m[a]=v;m[(a+1)&65535]=v>>8},pair=i=>i===3?sp:r[i*2]*256+r[i*2+1],setpair=(i,v)=>{v&=65535;if(i===3)sp=v;else{r[2*i]=v>>8;r[2*i+1]=v}},get=i=>i===6?m[pair(2)]:r[i],set=(i,v)=>{if(i===6)m[pair(2)]=v;else r[i]=v},f=()=>{let a=m[pc];pc=(pc+1)&65535;return a},fw=()=>f()|f()<<8,push=v=>{sp=(sp-2)&65535;wr(sp,v)},pop=()=>{let v=word(sp);sp=(sp+2)&65535;return v},cond=i=>[!z,z,!c,c,false,false,false,false][i];
  function alu(i,v){let a=r[7],x;if(i===0){x=a+v;c=x>255}else if(i===2||i===7){x=a-v;c=x<0}else if(i===4){x=a&v;c=false}else if(i===5){x=a^v;c=false}else if(i===6){x=a|v;c=false}else throw Error("alu "+i);z=(x&255)===0;if(i!==7)r[7]=x}
  function read(p){if(p===0xea)return 64;if(p===0xff)return port;if(p===0xcf)return status;if(p===0xc3)return resp.length&255;if(p===0xc2){assert(resp.length,"empty response");return resp.shift()}throw Error("read "+p)}
- function write(p,v){if(p===0xec){port=v;return}if([0xe8,0xe9,0xea].includes(p))return;if(p===0xeb){output.push(v);timeline.push(ticks);return}if(p===0xc3){size=v||256;return}if(p===0xc4){payload=[];resp=[];status=0x58;st=v;if(v===0)resp=[1,2,3,4,5,6];else if(v===3||v===8){}else if(v===9){if(dirDone)status=0x50;else{dirDone=true;resp=[mid.length&255,mid.length>>8&255,mid.length>>16&255,mid.length>>24,0,0,0,0,32,...Array.from("TEST.MID",x=>x.charCodeAt(0)),0,0,0,0,0]}}else if(v===4){assert(opened,"read unopened");resp=mid.slice(pos,pos+size);pos+=resp.length;if(!resp.length)status=0x50}else if(v===6){opened=false;closed++;status=0x50}else throw Error("FreHD cmd "+v);return}if(p===0xc2){payload.push(v);if(payload.length===size){if(st===3){assert(payload[0]===1&&String.fromCharCode(...payload.slice(1,-1))==="/TEST.MID","open");opened=true;pos=0;resp=[mid.length&255,mid.length>>8&255,mid.length>>16&255,mid.length>>24]}else if(st===8){dirDone=false;status=0x50}else throw Error("payload "+st)}return}throw Error("unexpected output port "+p)}
+ function write(p,v){if(p===0xec){port=v;return}if([0xe8,0xe9,0xea].includes(p))return;if(p===0xeb){output.push(v);timeline.push(ticks);return}if(p===0xc3){size=v||256;return}if(p===0xc4){payload=[];resp=[];status=0x58;st=v;if(v===0)resp=[1,2,3,4,5,6];else if(v===3||v===8){}else if(v===9){let names=scenario? (paths.at(-1)==='/'?['SUB','TEST.MID','NEXT.MID']:['TEST.MID','NEXT.MID']):['TEST.MID'];if(Number(dirDone)>=names.length)status=0x50;else{let name=names[Number(dirDone)];dirDone=Number(dirDone)+1;resp=[mid.length&255,mid.length>>8&255,mid.length>>16&255,mid.length>>24,0,0,0,0,name==='SUB'?16:32,...Array.from(name.padEnd(13,'\0'),x=>x.charCodeAt(0))]}}else if(v===4){assert(opened,"read unopened");resp=mid.slice(pos,pos+size);pos+=resp.length;if(!resp.length)status=0x50}else if(v===6){opened=false;closed++;status=0x50}else throw Error("FreHD cmd "+v);return}if(p===0xc2){payload.push(v);if(payload.length===size){if(st===3){let name=String.fromCharCode(...payload.slice(1,-1));assert(payload[0]===1&&/\/(TEST|NEXT)\.MID$/.test(name)&&!opened,"open");opens.push(name);opened=true;pos=0;resp=[mid.length&255,mid.length>>8&255,mid.length>>16&255,mid.length>>24]}else if(st===8){dirDone=0;paths.push(String.fromCharCode(...payload.slice(0,-1)));status=0x50}else throw Error("payload "+st)}return}throw Error("unexpected output port "+p)}
  for(let steps=0;steps<30000000;steps++){
-  let p=pc;if(p===0x402d)return {output,timeline,ticks,refreshes,closed,port,consoleText,opened};
+  let p=pc;if(p===0x402d)return {output,timeline,ticks,refreshes,closed,port,consoleText,opened,opens,paths,sp};
   if(p===0x002b){r[7]=keys[ki++]||0;pc=pop();continue}if(p===0x0033){consoleText+=String.fromCharCode(r[7]);pc=pop();continue}
-  if(p===sym.wait_loop){m[0x4288]++;ticks++;if(ticks===stopAt)m[0x3840]=4}
+  if(p===sym.wait_loop){m[0x4288]++;ticks++;if(ticks===stopAt)m[0x3840]=4;if(scenario&&ticks===scenario.clear[clearAt]){m[0x3840]=scenario.both?6:2;clearAt++;clearHeld=3;}}
+  if(scenario&&p===sym.wait_clear_release&&clearHeld>0){if(--clearHeld===0)m[0x3840]=0;}
+  if(scenario&&scenario.breakDuringClose&&p===sym.close_for_browser&&!breakInjected){m[0x429f]=1;breakInjected=true;}
   if(p===sym.render_parts)refreshes++;
   let op=f();
   if(op>=0x40&&op<=0x7f)set(op>>3&7,get(op&7));
@@ -44,7 +47,34 @@ for(let [name,mid] of demos){let ref=reference(mid);for(let mode of ["2","4","5"
 assert(eq(music,ref.out),"music mismatch "+name+" "+mode+" "+music.length+" "+ref.out.length);
 results.push({name,mode,music:music.length,messages:ref.msgs,sysex:ref.sx,channels:ref.channels,ticks:q.ticks,refreshes:q.refreshes,wire:q.output.length});}
 let q=cpu(mid,"4",10);assert(q.output.at(-1)===252&&q.closed===1&&q.consoleText.includes("Playback stopped."),"BREAK "+name)}
-return {results,wires};
+let clearResults=[];
+if(sym.wait_clear_release!==undefined){
+ let mid=demos[0][1],ref=reference(mid).out;
+ // Select SUB, TEST, mode 4; CLEAR to same folder, NEXT, mode 5; CLEAR, TEST raw 2, natural end.
+ let q=cpu(mid,"4",-1,{keys:[49,0,49,0,52,50,0,53,49,0,50],clear:[10,20]});
+ assert(eq(q.opens,["/SUB/TEST.MID","/SUB/NEXT.MID","/SUB/TEST.MID"]),"reopen names "+q.opens);
+ assert(eq(q.paths,["/","/SUB","/SUB","/SUB"]),"same directory "+q.paths);
+ assert(q.closed===3&&!q.opened&&q.port===0x20&&q.sp===0xf000,"balanced cleanup");
+ let ends=q.output.map((x,i)=>x===252?i:-1).filter(i=>i>=0);
+ assert(ends.length===2&&q.output[0]===253&&q.output[ends[0]+1]===249,"buffered CLEAR markers");
+ assert(eq(q.output.slice(ends[1]+1,-240),ref)&&eq(q.output.slice(-3),[191,120,0]),"raw restart exact music");
+ clearResults.push("PASS repeated CLEAR in subdirectory, mode 4 -> 5 -> raw 2, full raw song exact, stack restored");
+ // Raw CLEAR must send all 240 cleanup bytes, then next file starts in buffered mode.
+ q=cpu(mid,"2",-1,{keys:[50,0,50,51,0,52],clear:[10]});
+ assert(q.closed===2&&eq(q.opens,["/TEST.MID","/NEXT.MID"])&&q.port===0x20,"raw CLEAR opens "+q.opens);
+ let at=q.output.indexOf(253);assert(at>=240&&eq(q.output.slice(at-3,at),[191,120,0])&&eq(q.output.slice(at+1,-1).filter(x=>x!==248),ref)&&q.output.at(-1)===250,"raw to buffered");
+ clearResults.push("PASS raw CLEAR sends CC120, next buffered file exact with new START and END");
+ q=cpu(mid,"4",-1,{keys:[50,0,52,1],clear:[10]});
+ assert(q.closed===1&&q.output.at(-1)===252&&q.port===0x20&&q.opens.length===1,"BREAK from browser");
+ clearResults.push("PASS BREAK exits after CLEAR returns to browser");
+ q=cpu(mid,"4",-1,{keys:[50,0,52],clear:[10],both:true});
+ assert(q.closed===1&&q.output.at(-1)===252&&q.paths.length===1,"simultaneous BREAK wins");
+ clearResults.push("PASS simultaneous CLEAR/BREAK exits");
+ q=cpu(mid,"4",-1,{keys:[50,0,52],clear:[10],breakDuringClose:true});
+ assert(q.closed===1&&q.output.at(-1)===252&&q.paths.length===1,"latched BREAK during close");
+ clearResults.push("PASS latched BREAK during CLEAR cleanup exits");
+}
+return {results,wires,clearResults};
 }
 const dir=__dirname,cmd=Array.from(fs.readFileSync(path.join(dir,'SC55PLAY.CMD'))),sym=Object.fromEntries(fs.readFileSync(path.join(dir,'SC55PLAY.MAP'),'utf8').trim().split('\n').map(l=>{const [v,k]=l.split(' ');return [k,parseInt(v,16)]}));
-const demos=['SC55DEMO','VELVET'].map(n=>[n,Array.from(fs.readFileSync(path.join(dir,n+'.MID')))]);const q=verify(cmd,sym,demos);for(const r of q.results)console.log(JSON.stringify(r));for(const [name,wire] of Object.entries(q.wires))fs.writeFileSync(path.join(dir,name+'.wire'),Buffer.from(wire));console.log('PASS buffered BREAK and file closure');
+const demos=['SC55DEMO','VELVET'].map(n=>[n,Array.from(fs.readFileSync(path.join(dir,n+'.MID')))]);const q=verify(cmd,sym,demos);for(const r of q.results)console.log(JSON.stringify(r));for(const [name,wire] of Object.entries(q.wires))fs.writeFileSync(path.join(dir,name+'.wire'),Buffer.from(wire));console.log('PASS buffered BREAK and file closure');for(const s of q.clearResults)console.log(s);

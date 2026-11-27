@@ -1,4 +1,4 @@
-# SC55PLAY v0.2 — Experimental Roland Sound Canvas fast-buffer player
+# SC55PLAY v0.2.1 — Experimental Roland Sound Canvas fast-buffer player
 
 TRS-80 Model III (48 KB), LDOS 5.3.1, FreHD native SD FAT filesystem, existing 9600-baud RS-232/MAX3232/Arduino Nano bridge to Roland SC-55 MIDI IN (31,250 baud). Pure MIDI output: no cassette percussion or cassette output writes. Derived from MIDISD v0.1 and earlier experimental playback optimisations. Original players remain unchanged.
 
@@ -6,16 +6,16 @@ TRS-80 Model III (48 KB), LDOS 5.3.1, FreHD native SD FAT filesystem, existing 9
 
 ## Install and play
 
-1. Back up the LDOS disk and FreHD SD card. Import SC55PLAY.CMD in binary mode as SC55PLAY/CMD. Loads 6000h–74CEh, entry 6000h; ensure RAM region is free.
+1. Back up the LDOS disk and FreHD SD card. Import SC55PLAY.CMD in binary mode as SC55PLAY/CMD. Loads 6000h–7577h, entry 6000h; ensure RAM region is free.
 2. Copy SC55DEMO.MID or VELVET.MID directly to the FreHD SD card FAT root or folder, using short 8.3 filenames. No need to import MIDI files into a DOS disk image.
 3. Connect the existing MIDI bridge to the SC-55 MIDI IN and stereo outputs to an amplifier or powered speakers. Start at low volume.
 4. Run SC55PLAY without arguments. Select entries 1–9; N next page, R restart directory, U parent, BREAK exit.
 5. Select 2 (raw 25 Hz) or 3 (raw 30 Hz), according to actual LDOS clock. Select 4 (buffered 25 Hz) or 5 (buffered 30 Hz) using the [shared v0.3 fast Nano firmware](../firmware/serial_to_midi_fast/serial_to_midi_fast.ino); test raw first. Do not use the checked F4/F5 v0.2 protocol or transparent firmware in buffered modes.
-6. BREAK or end-of-track returns to LDOS. Raw cleanup sends pedal release, All Notes Off and All Sound Off on all 16 channels.
+6. During playback, CLEAR stops the current song and reopens the same SD directory at page 1. Select another file and choose a playback mode again. BREAK exits to LDOS, as does natural end-of-track. Raw cleanup sends pedal release, All Notes Off and All Sound Off on all 16 channels.
 
 ## Shared Nano buffering
 
-Use exactly the existing MIDISD v0.3 fast firmware; no separate Roland sketch. D10 RX at 9600 8N1, D1 hardware TX at 31250. The 512-byte FIFO stores complete timing groups; 160 ms nominal lookahead, occupancy-based clock slew and rebuffer/resume after short input delays. D13 flashes while buffering, steady on fault, off idle/raw. FD starts 25 Hz; F9 starts 30 Hz; F8 advances one LDOS tick; FA drains at EOF; FC aborts on BREAK. These markers are not forwarded to MIDI OUT. All 16 channels and running status remain supported. The firmware releases pedals and explicitly tracked notes, then CC123 on used channels plus channel 1. Raw SC55PLAY cleanup still also sends CC120; buffered cleanup does not, so release tails can remain. No ACK/retry or flow control; the link cannot guarantee recovery from corrupt/missing bytes. The nominal 9600-baud ceiling is 960 bytes/s before 25 or 30 marker bytes/s and Z80 overhead. GS checksum validation is separate from transport CRC and remains enabled. CLEAR-to-browser is not included in this version; BREAK and natural EOF return to LDOS.
+Use exactly the existing MIDISD v0.3 fast firmware; no separate Roland sketch. D10 RX at 9600 8N1, D1 hardware TX at 31250. The 512-byte FIFO stores complete timing groups; 160 ms nominal lookahead, occupancy-based clock slew and rebuffer/resume after short input delays. D13 flashes while buffering, steady on fault, off idle/raw. FD starts 25 Hz; F9 starts 30 Hz; F8 advances one LDOS tick; FA drains at EOF; FC aborts on BREAK. These markers are not forwarded to MIDI OUT. All 16 channels and running status remain supported. The firmware releases pedals and explicitly tracked notes, then CC123 on used channels plus channel 1. Raw SC55PLAY cleanup still also sends CC120; buffered cleanup does not, so release tails can remain. No ACK/retry or flow control; the link cannot guarantee recovery from corrupt/missing bytes. The nominal 9600-baud ceiling is 960 bytes/s before 25 or 30 marker bytes/s and Z80 overhead. GS checksum validation is separate from transport CRC and remains enabled. CLEAR during playback or after opening a file returns to the current SD directory, cancelling buffered music via FC or performing raw panic, closing the file and restoring FreHD I/O before reopening. BREAK has priority over CLEAR, including a latched BREAK during cleanup. CLEAR is ignored in the browser. A failed CLOSE or UART timeout does not reopen the directory. Natural EOF and BREAK return to LDOS. No additional instructions execute on the ordinary no-key polling path.
 
 ## Support and limitations
 
@@ -36,7 +36,7 @@ VELVET uses GS Hall 2 and Chorus 3, independent pan, expression, pitch bend, mod
 
 ## Build and validation
 
-Python 3 standard library only: run `python build.py` in this directory to produce SC55PLAY.CMD and SC55PLAY.MAP. Run `node test_sc55.js` (Node.js 18+) to execute the assembled CMD in the restricted Z80/FreHD mock and generate four buffered `.wire` fixtures. From the player directory, compile `g++ -std=c++17 -O2 -Itests/mock tests/test_fast.cpp -o /tmp/test_fast` and run `/tmp/test_fast sc55play/*.wire` to test the actual Nano sketch against those fixtures. The Z80 tests and separate synthetic Nano stress test were run for v0.2; the full cross-runtime demo replay command is provided for reproduction and has not been run here. See TESTS.txt and SHA256SUMS.txt. Physical hardware, actual audio, timing and FreHD bus/directory handling are unverified.
+Python 3 standard library only: run `python build.py` in this directory to produce SC55PLAY.CMD and SC55PLAY.MAP. Run `node test_sc55.js` (Node.js 18+) to execute the assembled CMD in the restricted Z80/FreHD mock and generate four buffered `.wire` fixtures. From the player directory, compile `g++ -std=c++17 -O2 -Itests/mock tests/test_fast.cpp -o /tmp/test_fast` and run `/tmp/test_fast sc55play/*.wire` to test the actual Nano sketch against those fixtures. The Z80 tests were rerun for v0.2.1 including CLEAR/BREAK; the separate synthetic Nano stress test was run for v0.2 with unchanged firmware; the full cross-runtime demo replay command is provided for reproduction and has not been run here. See TESTS.txt and SHA256SUMS.txt. Physical hardware, actual audio, timing and FreHD bus/directory handling are unverified.
 
 ## Next steps
 

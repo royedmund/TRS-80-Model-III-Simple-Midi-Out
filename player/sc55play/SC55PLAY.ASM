@@ -1,4 +1,4 @@
-; SC55PLAY v0.2 fast-buffer prototype for TRS-80 Model III / LDOS 5.3.1 / FreHD.
+; SC55PLAY v0.2.1 fast-buffer prototype - CLEAR returns to file list for TRS-80 Model III / LDOS 5.3.1 / FreHD.
 ; Derived from the project's MIDIDRUM v0.3 and MIDISD v0.1, MIT license.
 ; Native Format 0, PPQN; 32-bit MTrk length, 16-bit event delta/length VLQs.
 ; MIDI only. No cassette OUT. Existing UART at 9600, Nano MIDI at 31250.
@@ -19,6 +19,7 @@ ld (tx_status),a
 ld (display_on),a
 ld (buffered),a
 ld (natural_end),a
+    ld (return_flag),a
     ld (sd_port_active),a
     call clearbreak
 push hl
@@ -555,15 +556,31 @@ sub b
     call refresh_notes
     ret
 checkbreak:
+; Physical CLEAR bit 1, BREAK bit 2. Same normal polling cost.
 ld a,(0x3840)
-and 4
-jp nz,stop_playback
+and 6
+jp nz,key_special
 ld a,(0x429f)
 and 1
 ret z
 stop_playback:
+xor a
+ld (return_flag),a
 ld hl,stoppedmsg
 jp finish
+key_special:
+    and 4
+    jp nz,stop_playback
+    ld a,(0x429f)
+    and 1
+    jp nz,stop_playback
+    ld a,(opened)
+    or a
+    ret z ; ignore CLEAR in browser or during key release
+    ld a,1
+    ld (return_flag),a
+    ld hl,clearmsg
+    jp finish
 clearbreak:
 push hl
 ld hl,0x429f
@@ -634,6 +651,7 @@ jp nz,send_ready
 djnz send_poll
 send_timeout:
 xor a
+ld (return_flag),a
 ld (playing),a
 ld hl,uartmsg
 jp finish
@@ -707,11 +725,42 @@ call send
     djnz panic_loop
 closefile:
 call finish_display
+; Preserve a BREAK arriving during CLEAR cleanup until we can honor it.
+ld a,(return_flag)
+or a
+jp nz,close_for_browser
 call clearbreak
+close_for_browser:
 call sd_close
 done:
 pop hl
 call print
+ld a,(return_flag)
+or a
+jp z,exit_program
+; finish restored savedsp, and the message push/pop is balanced.
+; Reset song-local parser state, not the current directory path.
+xor a
+ld (return_flag),a
+ld (running),a
+ld (tx_status),a
+ld (buffered),a
+ld (natural_end),a
+wait_clear_release:
+    call checkbreak
+    ld a,(0x3840)
+    and 2
+    jp nz,wait_clear_release
+    ; Restore the FreHD I/O setup, retaining the current directory.
+    in a,(0xff)
+    ld (sd_saved_port),a
+    or 0x10
+    out (0xec),a
+    ld a,1
+    ld (sd_port_active),a
+    call sd_reopen
+    jp parse_header
+exit_program:
 call clearbreak
 jp 0x402d
 print:
@@ -942,16 +991,17 @@ finish_display:
     ret
 header: db 77,84,104,100,0,0,0,6,0,0,0,1
 tracktag: db 77,84,114,107
-banner: db 13,"TRS-80 MODEL III SC55PLAY v0.2",13,"Press BREAK to Exit",13,0
-prompt: db 13,"RAW MIDI: 2=25Hz, 3=30Hz",13,"FAST NANO: 4=25Hz, 5=30Hz (v0.3 firmware)",13,"Press BREAK to Exit",13,0
+banner: db 13,"TRS-80 MODEL III SC55PLAY v0.2.1",13,"CLEAR: file list  BREAK: exit",13,0
+prompt: db 13,"RAW MIDI: 2=25Hz, 3=30Hz",13,"FAST NANO: 4=25Hz, 5=30Hz (v0.3 firmware)",13,"CLEAR: file list  BREAK: exit",13,0
 playingmsg: db 13,"Playing MIDI...",13,0
 finishedmsg: db 13,"End of MIDI file.",13,0
 stoppedmsg: db 13,"Playback stopped.",13,0
+clearmsg: db 13,"Returning to file list.",13,0
 usagemsg: db 13,"Usage: SC55PLAY (no filename)",13,0
 badmsg: db 13,"Cannot read file or unsupported MIDI format.",13,0
 uartmsg: db 13,"Serial UART not ready.",13,0
-dash_title: db "TRS-80 MODEL III SC55PLAY V0.2 - ROLAND SOUND CANVAS            "
-dash_help: db "PLAYING MIDI - BREAK TO EXIT - 16 CHANNELS (TX ONLY)            "
+dash_title: db "TRS-80 MODEL III SC55PLAY V0.2.1 - ROLAND SOUND CANVAS          "
+dash_help: db "PLAYING MIDI - CLEAR: FILE LIST  BREAK: EXIT - 16CH TX          "
 dash_ended: db "PLAYBACK ENDED - SEE STATUS BELOW                               "
 dash_columns: db "CH   PRG     BANK     PEAK      CH   PRG     BANK     PEAK      "
 dash_stream: db "FAST PLAYBACK - PROGRAM / BANK / PEAK VELOCITY                  "
@@ -990,6 +1040,7 @@ sxlen: db 0
 sxdata: ds 128
 buffered: db 0
 natural_end: db 0
+return_flag: db 0
 savedsp: dw 0
 opened: db 0
 playing: db 0
@@ -1466,6 +1517,15 @@ ld (opened),a
 ld a,6
 out (0xc4),a
 call sd_wait
+jp nc,sd_restore
+; A failed CLOSE must not attempt a new OPEN on the old file handle.
+ld a,(return_flag)
+or a
+jp z,sd_restore
+xor a
+ld (return_flag),a
+ld hl,sd_errmsg
+call print
 sd_restore:
 ld a,(sd_saved_port)
 out (0xec),a

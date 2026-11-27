@@ -1,3 +1,15 @@
+SC55PLAY v0.2.1 — CLEAR to file list, BREAK to LDOS
+Built 5588-byte CMD, load 6000-7577, entry 6000.
+Reassembled v0.2 from source, byte-identical to published CMD.
+PASS all six SC55DEMO/VELVET full-song tests (raw 25 Hz, buffered 25/30 Hz); musical bytes, tick markers and tick counts identical to v0.2.
+PASS repeated CLEAR in subdirectory, mode 4 -> 5 -> raw 2, full raw song exact, stack restored.
+PASS raw CLEAR sends CC120, next buffered file exact with new START and END.
+PASS BREAK exits after CLEAR returns to browser.
+PASS simultaneous CLEAR/BREAK exits.
+PASS latched BREAK during CLEAR cleanup exits.
+Nano firmware unchanged; no physical SC-55 or cycle-accurate timing tests. Natural EOF behavior unchanged.
+Reproduce with python3 build.py and node test_sc55.js.
+
 SC55PLAY v0.2 — fast buffer integration
 Built SC55PLAY.CMD: 5415 bytes, load 6000-74CE, entry 6000.
 Reassembled v0.1 from original source, matched original CMD byte-for-byte.
