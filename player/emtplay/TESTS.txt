@@ -67,3 +67,11 @@ PASS GMDEMO.MID Piano 25Hz: 1034 music bytes, 975 frames, 1 tempo records
 PASS GMDEMO.MID Piano 30Hz: 1034 music bytes, 1170 frames, 1 tempo records
 PASS CLOCKTST.MID native 25Hz: 52 music bytes, 150 frames, 2 tempo records
 PASS CLOCKTST.MID native 30Hz: 52 music bytes, 180 frames, 2 tempo records
+PASS clocktst25.wire: 52 musical bytes, 193 clocks, FIFO peak 17/512
+PASS gmdemo25.wire: 1034 musical bytes, 1561 clocks, FIFO peak 29/512
+PASS gmdemop25.wire: 1034 musical bytes, 1561 clocks, FIFO peak 29/512
+PASS scoretst25.wire: 386 musical bytes, 793 clocks, FIFO peak 32/512
+PASS clocktst30.wire: 52 musical bytes, 193 clocks, FIFO peak 20/512
+PASS gmdemo30.wire: 1034 musical bytes, 1561 clocks, FIFO peak 35/512
+PASS gmdemop30.wire: 1034 musical bytes, 1561 clocks, FIFO peak 35/512
+PASS scoretst30.wire: 386 musical bytes, 793 clocks, FIFO peak 32/512

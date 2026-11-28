@@ -14,6 +14,19 @@ The new output-only [MIDICLOCK v0.2 transport](transport/README.md) is the commo
 
 **Compatibility:** modes 4/5 in these new builds require the matching MIDICLOCK v0.2 firmware; modes 2/3 are raw MIDI. D10 RX/D1 TX wiring is unchanged. The legacy MIDISD v0.3 executable and fast bridge remain the hardware-tested fallback and are not overwritten. The new firmware also accepts supported legacy raw and FD/F9 buffered streams (without MIDI Clock). Bidirectional workstation D8/D9 hardware is separate and not migrated. Host simulations passed; AVR compilation and hardware tests remain pending.
 
+## Experimental framed MIDI Clock transport — v0.2
+
+The Model III sends compact length-prefixed event frames and tempo records at 9600 baud; the Nano buffers complete groups and produces 24-PPQN MIDI Clock and standard transport messages at DIN OUT. The hardware-tested MIDISD v0.3 and its original firmware remain unchanged.
+
+- [Shared protocol, firmware, schematic and test player](transport/README.md)
+- [MIDISD v0.4 (clock-enabled)](player/clock/README.md) · [MIDISD.CMD](player/clock/MIDISD.CMD) · [documented Z80 transport overlay](player/clock/CLOCKHOOK.ASM)
+- [EMTPLAY v1.0 (intelligent EMT-10 arrangement and clock)](player/emtplay/README.md) · [EMTPLAY.CMD](player/emtplay/EMTPLAY.CMD) · [documented clock overlay](player/emtplay/EMTCLOCK.ASM)
+- [MIDICLOCK.ino](transport/firmware/MIDICLOCK/MIDICLOCK.ino) · [binary wire specification](transport/PROTOCOL.md)
+
+**Experimental:** use matched v0.2 Nano firmware for new modes 4/5. Raw modes 2/3 do not emit clock. Existing D10/D1 output-only wiring; no MIDI IN changes. Z80 mock and host firmware simulation passed; AVR compilation and physical audio/timing tests pending. EMT-10 ignores MIDI Clock, but other clock-following equipment can use it. Orchestra, games, SC55PLAY and legacy players have not yet been migrated.
+
+![Corrected output-only interface schematic](transport/hardware/MIDI-CLOCK-OUT.svg)
+
 ## Experimental MIDI workstation — v0.1
 
 The [TRS-80 Model III MIDI Workstation](workstation/README.md) adds a bidirectional Arduino Nano interface and a native Z80 MIDI input monitor. The existing hardware-tested one-way MIDI OUT player and firmware remain unchanged.
