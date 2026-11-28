@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 540" width="1280" height="540">
+<rect width="1280" height="540" fill="#fff"/>
+<style>text{font-family:DejaVu Sans,sans-serif;fill:#172b3c}.wire{stroke:#17614b;stroke-width:2.3;fill:none;stroke-linejoin:round;stroke-linecap:round}.part{stroke:#243b4a;stroke-width:1.7;fill:#fff}.panel{stroke:#b5c5cf;stroke-width:1;fill:#f8fafb}.net{font-family:DejaVu Sans Mono,monospace;fill:#17614b;font-weight:bold}</style>
+<text x="30" y="37" font-size="28" class="" text-anchor="start" font-weight="bold">TRS-80 MODEL III  /  MIDI CLOCK OUT</text>
+<text x="30" y="64" font-size="15" class="" text-anchor="start" font-weight="normal">Existing D10 interface • Rev 0.3 experimental • MIDICLOCK v0.2 framed serial transport</text>
+<rect x="25" y="85" width="1230" height="250" rx="9" class="panel"/>
+<text x="43" y="116" font-size="19" class="" text-anchor="start" font-weight="bold">01   RS-232 to Nano to MIDI OUT</text>
+<rect x="48" y="140" width="165" height="140" rx="3" class="part"/>
+<text x="130" y="165" font-size="17" class="" text-anchor="middle" font-weight="bold">J1 DB25</text>
+<text x="200" y="201" font-size="14" class="" text-anchor="end" font-weight="normal">2 TXD</text>
+<text x="200" y="251" font-size="14" class="" text-anchor="end" font-weight="normal">7 GND</text>
+<text x="62" y="270" font-size="12" class="" text-anchor="start" font-weight="normal">TRS-80 DTE</text>
+<rect x="310" y="140" width="212" height="140" rx="3" class="part"/>
+<text x="416" y="165" font-size="17" class="" text-anchor="middle" font-weight="bold">U1 MAX3232</text>
+<text x="321" y="201" font-size="13" class="" text-anchor="start" font-weight="normal">R1IN</text>
+<text x="511" y="201" font-size="13" class="" text-anchor="end" font-weight="normal">R1OUT</text>
+<text x="321" y="251" font-size="13" class="" text-anchor="start" font-weight="normal">GND</text>
+<text x="511" y="251" font-size="13" class="" text-anchor="end" font-weight="normal">VCC</text>
+<polyline class="wire" points="213,196 310,196"/>
+<polyline class="wire" points="213,246 310,246"/>
+<circle cx="258" cy="246" r="3.5" fill="#17614b"/>
+<polyline class="wire" points="258,246 258,258 246,258 270,258"/>
+<polyline class="wire" points="250,263 266,263"/>
+<polyline class="wire" points="254,268 262,268"/>
+<rect x="620" y="140" width="212" height="140" rx="3" class="part"/>
+<text x="726" y="165" font-size="17" class="" text-anchor="middle" font-weight="bold">U2 Nano 5V</text>
+<text x="631" y="201" font-size="13" class="" text-anchor="start" font-weight="normal">D10 RX</text>
+<text x="631" y="251" font-size="13" class="" text-anchor="start" font-weight="normal">5V</text>
+<text x="821" y="201" font-size="13" class="" text-anchor="end" font-weight="normal">D1 TX</text>
+<text x="821" y="251" font-size="13" class="" text-anchor="end" font-weight="normal">GND</text>
+<polyline class="wire" points="522,196 620,196"/>
+<polyline class="wire" points="522,246 620,246"/>
+<text x="571" y="238" font-size="13" class="net" text-anchor="middle" font-weight="normal">+5V</text>
+<polyline class="wire" points="832,246 855,246"/>
+<polyline class="wire" points="855,246 855,258 843,258 867,258"/>
+<polyline class="wire" points="847,263 863,263"/>
+<polyline class="wire" points="851,268 859,268"/>
+<rect x="1100" y="140" width="128" height="140" rx="3" class="part"/>
+<text x="1164" y="165" font-size="16" class="" text-anchor="middle" font-weight="bold">J2 DIN-5</text>
+<text x="1110" y="201" font-size="13" class="" text-anchor="start" font-weight="normal">5</text>
+<text x="1110" y="226" font-size="13" class="" text-anchor="start" font-weight="normal">4</text>
+<text x="1110" y="251" font-size="13" class="" text-anchor="start" font-weight="normal">2</text>
+<polyline class="wire" points="832,196 924,196"/>
+<polyline class="wire" points="924,196 932,196 937,189 947,203 957,189 967,203 977,189 992,196"/>
+<polyline class="wire" points="992,196 1100,196"/>
+<text x="958" y="183" font-size="12" class="" text-anchor="middle" font-weight="normal">R2 220Ω</text>
+<text x="900" y="226" font-size="13" class="net" text-anchor="start" font-weight="normal">+5V</text>
+<polyline class="wire" points="945,221 964,221"/>
+<polyline class="wire" points="964,221 972,221 977,214 987,228 997,214 1007,228 1017,214 1032,221"/>
+<polyline class="wire" points="1032,221 1100,221"/>
+<text x="999" y="211" font-size="12" class="" text-anchor="middle" font-weight="normal">R1 220Ω</text>
+<polyline class="wire" points="1100,246 1060,246"/>
+<polyline class="wire" points="1060,246 1060,258 1048,258 1072,258"/>
+<polyline class="wire" points="1052,263 1068,263"/>
+<polyline class="wire" points="1056,268 1064,268"/>
+<text x="48" y="315" font-size="14" class="" text-anchor="start" font-weight="normal">9600 baud 8N1  →  MIDI 31250 baud. DB25 pin 3, Nano D0/D11, DIN pins 1/3: unconnected.</text>
+<rect x="25" y="352" width="1230" height="164" rx="9" class="panel"/>
+<text x="43" y="383" font-size="19" class="" text-anchor="start" font-weight="bold">02   Power, clock and test notes</text>
+<text x="48" y="409" font-size="14" class="" text-anchor="start" font-weight="normal">Regulated 5 V; shared logic ground. No power from DB25. Verify MAX3232 module direction and DIN pin numbering.</text>
+<text x="48" y="436" font-size="14" class="" text-anchor="start" font-weight="normal">Nano decodes F6/F1/F2/F3 records and emits MIDI F8 clock, FA start, FC stop and note data on D1.</text>
+<text x="48" y="463" font-size="14" class="" text-anchor="start" font-weight="normal">Disconnect MIDI OUT during firmware upload/reset. Use a powered MIDI THRU box for multiple destinations.</text>
+<text x="48" y="490" font-size="14" class="" text-anchor="start" font-weight="normal">Direct Nano TX driver is a prototype; verify loop current and receiver compatibility. Do not connect RS-232 levels to logic pins.</text>
+</svg>

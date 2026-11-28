@@ -1,0 +1,8 @@
+Built 9109 bytes 2f781b7b144001b60cbeb18b8d4f755ede9cf9bca9468faa8af7ece4bc85ab90
+PASS actual Z80 frame start, tempo, MIDI buffering, tick, empty frame, final at 25 Hz
+PASS actual Z80 frame start, tempo, MIDI buffering, tick, empty frame, final at 30 Hz
+PASS raw compatibility
+PASS immediate abort
+PASS oversized tick abort before writes
+PASS actual SMF event parser: 25Hz, 150 tick frames, 52 music bytes, two tempo changes
+PASS actual SMF event parser: 30Hz, 180 tick frames, 52 music bytes, two tempo changes

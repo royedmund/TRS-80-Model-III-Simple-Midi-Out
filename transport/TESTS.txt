@@ -1,0 +1,32 @@
+Built 9109 bytes ffe296f76ab0873d9ee1d2b58a2e1602ff7f1cf4f2fd2d52297af847e2a980ec
+PASS actual Z80 frame start, tempo, MIDI buffering, tick, empty frame, final at 25 Hz
+PASS actual Z80 frame start, tempo, MIDI buffering, tick, empty frame, final at 30 Hz
+PASS raw compatibility
+PASS immediate abort
+PASS oversized tick abort before writes
+PASS actual SMF event parser: 25Hz, 150 tick frames, 52 music bytes, two tempo changes
+PASS actual SMF event parser: 30Hz, 180 tick frames, 52 music bytes, two tempo changes
+PASS framed 25Hz tempo transition, 73 pulses and unchanged music
+PASS actual assembled Z80 wire fixture at 9600 baud, 25Hz
+PASS framed 30Hz tempo transition, 73 pulses and unchanged music
+PASS actual assembled Z80 wire fixture at 9600 baud, 30Hz
+PASS incomplete group withheld, then released; abort cleans up
+PASS illegal payload/control collision rejected
+PASS illegal length rejected
+PASS incomplete tempo rejected
+PASS max frame length and FIFO overflow fail closed
+PASS incomplete frame watchdog
+PASS incomplete start watchdog
+PASS partial frame abort and new session
+PASS complete assembled CLOCKTST stream, 25Hz, 52 music bytes, 193 clock pulses
+PASS complete assembled CLOCKTST stream, 30Hz, 52 music bytes, 193 clock pulses
+PASS raw note stream unchanged
+PASS legacy buffered playback emits no clock
+PASS 25Hz: 49 pulses including beat-zero; 48 intervals at 120 BPM
+PASS 30Hz: 49 pulses including beat-zero; 48 intervals at 120 BPM
+PASS queued 120 to 60 BPM tempo change; private bytes not forwarded
+PASS underrun holds phase; STOP and note cleanup
+PASS malformed tempo rejected
+PASS blocked UART preserves start order
+PASS watchdog stops clock
+PASS micros rollover

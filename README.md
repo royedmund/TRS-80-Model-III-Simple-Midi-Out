@@ -4,6 +4,16 @@ A minimal, external, one-way MIDI interface for the TRS-80 Model III and Yamaha 
 
 **Status (27 November 2026):** MIDISD v0.3 and the fast Nano firmware are the recommended hardware-tested baseline for direct FreHD SD-card playback. The project owner reported successful playback on the physical TRS-80 Model III and Yamaha EMT-10 after replacing the unsuccessful checked v0.2 protocol with v0.3. Extended reliability and precise timing measurements remain open. MIDIPLAY v0.9 remains available for DOS-image playback.
 
+## Shared structured MIDI Clock transport — experimental
+
+The new output-only [MIDICLOCK v0.2 transport](transport/README.md) is the common protocol for clock-enabled applications. The TRS-80 sends F6 session, F1 tempo, F2/F3 length-prefixed music frames and FC abort; the Nano schedules MIDI output and generates 24 PPQN clock, Start and Stop at playback time.
+
+- [MIDICLOCK.ino](transport/firmware/MIDICLOCK/MIDICLOCK.ino) · [wire specification](transport/PROTOCOL.md) · [corrected circuit schematic](transport/hardware/MIDI-CLOCK-OUT.svg)
+- [MIDISD v0.4 clock edition](player/clock/README.md) · [MIDISD.CMD](player/clock/MIDISD.CMD) · [commented clock assembly](player/clock/CLOCKHOOK.ASM)
+- [EMTPLAY v1.0](player/emtplay/README.md) · [EMTPLAY.CMD](player/emtplay/EMTPLAY.CMD) · [commented clock assembly](player/emtplay/EMTCLOCK.ASM) — native EMT-10 playback and GM/Piano reduction, RAM cache, live upper/bass display.
+
+**Compatibility:** modes 4/5 in these new builds require the matching MIDICLOCK v0.2 firmware; modes 2/3 are raw MIDI. D10 RX/D1 TX wiring is unchanged. The legacy MIDISD v0.3 executable and fast bridge remain the hardware-tested fallback and are not overwritten. The new firmware also accepts supported legacy raw and FD/F9 buffered streams (without MIDI Clock). Bidirectional workstation D8/D9 hardware is separate and not migrated. Host simulations passed; AVR compilation and hardware tests remain pending.
+
 ## Experimental MIDI workstation — v0.1
 
 The [TRS-80 Model III MIDI Workstation](workstation/README.md) adds a bidirectional Arduino Nano interface and a native Z80 MIDI input monitor. The existing hardware-tested one-way MIDI OUT player and firmware remain unchanged.

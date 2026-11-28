@@ -1,0 +1,69 @@
+PASS information header, independent upper and bass streams
+PASS explicit accidentals and octaves, compact split routing, no timing redraw, channel filter
+PASS all 128 pitches, 1,280 note tokens, independent row wrap, protected header and labels
+PASS CLEAR cleanup and picker restart, mode 0x0
+PASS CLEAR cleanup and picker restart, mode 0xfd
+PASS BREAK priority over CLEAR, DOS exit
+PASS CLEAR ignored in picker
+PASS natural EOF drain then BREAK cancels pending drain
+PASS actual picker N/n, R/r, U/u dispatch; selection digits and BREAK unchanged
+PASS filename, cache and transport info; all 128 native patch aliases update only voice line
+PASS scan silence, program mapping, percussion exclusion and electric bass + strings selection
+PASS GM multichannel mix, octave split, matching note-offs and score state
+PASS 6+2 budget, merged folded unisons, unmatched off suppression
+PASS bass-only fallback
+Cache starts 0x93b5
+PASS cache boundaries, resident HIGH$, stack guard and address wrap
+PASS cache reader pointer and register preservation
+PASS scan EOT cache rewind, no MIDI before playback
+PASS actual parser scan: variable delta, tempo, running status, Yamaha SysEx suppressed, EOT rewind
+PASS information header, independent upper and bass streams
+PASS explicit accidentals and octaves, compact split routing, no timing redraw, channel filter
+PASS all 128 pitches, 1,280 note tokens, independent row wrap, protected header and labels
+PASS CLEAR cleanup and picker restart, mode 0x0
+PASS CLEAR cleanup and picker restart, mode 0xfd
+PASS BREAK priority over CLEAR, DOS exit
+PASS CLEAR ignored in picker
+PASS natural EOF drain then BREAK cancels pending drain
+PASS actual picker N/n, R/r, U/u dispatch; selection digits and BREAK unchanged
+PASS filename, cache and transport info; all 128 native patch aliases update only voice line
+PASS Piano Reduction, secondary accompaniment, overlapping unison held until final release
+PASS primary note reservation, 6+2 budget, source-channel releases
+PASS real timing arithmetic, tempo changes and timer wrap model 40000 us/tick
+PASS real timing arithmetic, tempo changes and timer wrap model 33333 us/tick
+PASS information header, independent upper and bass streams
+PASS explicit accidentals and octaves, compact split routing, no timing redraw, channel filter
+PASS all 128 pitches, 1,280 note tokens, independent row wrap, protected header and labels
+PASS CLEAR cleanup and picker restart, mode 0x0
+PASS CLEAR cleanup and picker restart, mode 0xfd
+PASS BREAK priority over CLEAR, DOS exit
+PASS CLEAR ignored in picker
+PASS natural EOF drain then BREAK cancels pending drain
+PASS actual picker N/n, R/r, U/u dispatch; selection digits and BREAK unchanged
+PASS filename, cache and transport info; all 128 native patch aliases update only voice line
+PASS status transitions, framed boundaries, SysEx reset, mode 0x0
+PASS status transitions, framed boundaries, SysEx reset, mode 0xfd
+PASS status transitions, framed boundaries, SysEx reset, mode 0xf9
+PASS UART immediate ready and busy retry up to 255 polls; registers preserved
+PASS bounded UART timeout and clean DOS exit
+PASS combined cached get register preservation, exact end boundary
+PASS streaming fallback to original SD reader
+PASS GM buffered explicit status, split voices and cleanup state
+PASS information header, independent upper and bass streams
+PASS explicit accidentals and octaves, compact split routing, no timing redraw, channel filter
+PASS all 128 pitches, 1,280 note tokens, independent row wrap, protected header and labels
+PASS CLEAR cleanup and picker restart, mode 0x0
+PASS CLEAR cleanup and picker restart, mode 0xfd
+PASS BREAK priority over CLEAR, DOS exit
+PASS CLEAR ignored in picker
+PASS natural EOF drain then BREAK cancels pending drain
+PASS actual picker N/n, R/r, U/u dispatch; selection digits and BREAK unchanged
+PASS filename, cache and transport info; all 128 native patch aliases update only voice line
+PASS SCORETST.MID native 25Hz: 386 music bytes, 495 frames, 1 tempo records
+PASS SCORETST.MID native 30Hz: 386 music bytes, 594 frames, 1 tempo records
+PASS GMDEMO.MID GM 25Hz: 1034 music bytes, 975 frames, 1 tempo records
+PASS GMDEMO.MID GM 30Hz: 1034 music bytes, 1170 frames, 1 tempo records
+PASS GMDEMO.MID Piano 25Hz: 1034 music bytes, 975 frames, 1 tempo records
+PASS GMDEMO.MID Piano 30Hz: 1034 music bytes, 1170 frames, 1 tempo records
+PASS CLOCKTST.MID native 25Hz: 52 music bytes, 150 frames, 2 tempo records
+PASS CLOCKTST.MID native 30Hz: 52 music bytes, 180 frames, 2 tempo records
