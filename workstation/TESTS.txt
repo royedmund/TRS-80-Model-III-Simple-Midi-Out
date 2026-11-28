@@ -1,0 +1,11 @@
+CMD 1539 bytes 0x6000 0x65e6
+PASS normalized notes, zero-velocity off, CC, program, loss
+PASS frame resynchronization
+PASS circular log
+PASS UART error resets parser
+PASS CLEAR
+PASS BREAK
+PASS input running status, realtime, SysEx filtering, program padding
+PASS whole frame overflow and marker
+PASS raw output running status and panic
+PASS buffered lead, tick, drain

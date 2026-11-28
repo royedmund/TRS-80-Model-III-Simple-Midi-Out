@@ -4,6 +4,19 @@ A minimal, external, one-way MIDI interface for the TRS-80 Model III and Yamaha 
 
 **Status (27 November 2026):** MIDISD v0.3 and the fast Nano firmware are the recommended hardware-tested baseline for direct FreHD SD-card playback. The project owner reported successful playback on the physical TRS-80 Model III and Yamaha EMT-10 after replacing the unsuccessful checked v0.2 protocol with v0.3. Extended reliability and precise timing measurements remain open. MIDIPLAY v0.9 remains available for DOS-image playback.
 
+## Experimental MIDI workstation — v0.1
+
+The [TRS-80 Model III MIDI Workstation](workstation/README.md) adds a bidirectional Arduino Nano interface and a native Z80 MIDI input monitor. The existing hardware-tested one-way MIDI OUT player and firmware remain unchanged.
+
+- [MIDIIN/CMD executable](workstation/MIDIIN.CMD) and [Z80 source](workstation/MIDIIN.ASM)
+- [MIDIWORK Arduino firmware](workstation/firmware/MIDIWORK/MIDIWORK.ino)
+- [Circuit schematic (SVG)](workstation/MIDIWORK-schematic.svg)
+- [Build and installation instructions](workstation/README.md)
+
+![Experimental bidirectional MIDI workstation schematic](workstation/MIDIWORK-schematic.svg)
+
+**Experimental:** host-side tests have passed; AVR compilation, electrical validation and physical hardware tests remain outstanding. The new interface uses AltSoftSerial D8/D9 and requires wiring changes; do not flash it onto the existing D10-wired interface without rewiring. MIDI recording, sequencing and THRU are future milestones.
+
 ## How it works
 
 The Model III sends raw MIDI bytes over its existing RS-232 port at 9600 baud (8N1). A MAX3232 module converts the RS-232 voltage levels to 5 V logic; a classic Arduino Nano receives the bytes and retransmits them at the MIDI rate of 31,250 baud.

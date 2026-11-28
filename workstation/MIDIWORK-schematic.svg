@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 850" width="1280" height="850">
+<rect width="1280" height="850" fill="#fff"/>
+<style>text{font-family:DejaVu Sans,sans-serif;fill:#172b3c}.wire{stroke:#17614b;stroke-width:2.3;fill:none;stroke-linejoin:round;stroke-linecap:round}.part{stroke:#243b4a;stroke-width:1.7;fill:#fff}.panel{stroke:#b5c5cf;stroke-width:1;fill:#f8fafb}.net{font-family:DejaVu Sans Mono,monospace;fill:#17614b;font-weight:bold}</style>
+<text x="30" y="37" font-size="28" class="" text-anchor="start" font-weight="bold">TRS-80 MODEL III  /  MIDI WORKSTATION</text>
+<text x="30" y="64" font-size="15" class="" text-anchor="start" font-weight="normal">Bidirectional interface • Rev 0.1 experimental • Classic 5 V Arduino Nano (ATmega328P)</text>
+<rect x="25" y="85" width="1230" height="264" rx="9" class="panel"/>
+<text x="43" y="116" font-size="19" class="" text-anchor="start" font-weight="bold">01   RS-232 and Nano connections</text>
+<rect x="52" y="144" width="192" height="154" rx="3" class="part"/>
+<text x="148" y="168" font-size="17" class="" text-anchor="middle" font-weight="bold">J1  DB25</text>
+<text x="148" y="187" font-size="12" class="" text-anchor="middle" font-weight="normal">TRS-80 DTE</text>
+<text x="232" y="216" font-size="14" class="" text-anchor="end" font-weight="normal">2 TXD</text>
+<text x="232" y="248" font-size="14" class="" text-anchor="end" font-weight="normal">3 RXD</text>
+<text x="232" y="280" font-size="14" class="" text-anchor="end" font-weight="normal">7 GND</text>
+<rect x="350" y="144" width="237" height="154" rx="3" class="part"/>
+<text x="468" y="168" font-size="16" class="" text-anchor="middle" font-weight="bold">U1  MAX3232 module</text>
+<text x="362" y="216" font-size="14" class="" text-anchor="start" font-weight="normal">R1IN</text>
+<text x="575" y="216" font-size="14" class="" text-anchor="end" font-weight="normal">R1OUT</text>
+<text x="362" y="248" font-size="14" class="" text-anchor="start" font-weight="normal">T1OUT</text>
+<text x="575" y="248" font-size="14" class="" text-anchor="end" font-weight="normal">T1IN</text>
+<text x="362" y="280" font-size="14" class="" text-anchor="start" font-weight="normal">GND</text>
+<text x="575" y="280" font-size="14" class="" text-anchor="end" font-weight="normal">VCC</text>
+<polyline class="wire" points="244,211 350,211"/>
+<polyline class="wire" points="244,243 350,243"/>
+<polyline class="wire" points="244,275 350,275"/>
+<circle cx="302" cy="275" r="3.5" fill="#17614b"/>
+<polyline class="wire" points="302,275 302,298"/>
+<polyline class="wire" points="302,298 302,310 290,310 314,310"/>
+<polyline class="wire" points="294,315 310,315"/>
+<polyline class="wire" points="298,320 306,320"/>
+<rect x="748" y="135" width="235" height="183" rx="3" class="part"/>
+<text x="865" y="160" font-size="16" class="" text-anchor="middle" font-weight="bold">U2  Arduino Nano</text>
+<text x="760" y="216" font-size="14" class="" text-anchor="start" font-weight="normal">D8 RX</text>
+<text x="760" y="248" font-size="14" class="" text-anchor="start" font-weight="normal">D9 TX</text>
+<text x="760" y="280" font-size="14" class="" text-anchor="start" font-weight="normal">5V</text>
+<text x="971" y="191" font-size="14" class="" text-anchor="end" font-weight="normal">D0 RX</text>
+<text x="971" y="221" font-size="14" class="" text-anchor="end" font-weight="normal">D1 TX</text>
+<text x="971" y="251" font-size="14" class="" text-anchor="end" font-weight="normal">D4</text>
+<text x="971" y="281" font-size="14" class="" text-anchor="end" font-weight="normal">GND</text>
+<polyline class="wire" points="587,211 748,211"/>
+<polyline class="wire" points="587,243 748,243"/>
+<polyline class="wire" points="587,275 748,275"/>
+<text x="663" y="205" font-size="13" class="net" text-anchor="middle" font-weight="normal">TTL RX</text>
+<text x="663" y="237" font-size="13" class="net" text-anchor="middle" font-weight="normal">TTL TX</text>
+<text x="665" y="269" font-size="13" class="net" text-anchor="middle" font-weight="normal">+5V</text>
+<polyline class="wire" points="983,186 1008,186"/>
+<polyline class="wire" points="1026,186 1048,186"/>
+<circle cx="1010" cy="186" r="3" class="part"/><circle cx="1024" cy="186" r="3" class="part"/>
+<text x="1017" y="174" font-size="10" class="" text-anchor="middle" font-weight="normal">JP1</text>
+<text x="1056" y="191" font-size="13" class="net" text-anchor="start" font-weight="normal">MIDI_RX</text>
+<polyline class="wire" points="983,216 1048,216"/>
+<text x="1056" y="221" font-size="13" class="net" text-anchor="start" font-weight="normal">MIDI_TX</text>
+<polyline class="wire" points="983,246 1048,246"/>
+<text x="1056" y="251" font-size="13" class="net" text-anchor="start" font-weight="normal">IN_ENABLE</text>
+<polyline class="wire" points="983,276 1048,276"/>
+<polyline class="wire" points="1048,276 1048,288 1036,288 1060,288"/>
+<polyline class="wire" points="1040,293 1056,293"/>
+<polyline class="wire" points="1044,298 1052,298"/>
+<text x="1080" y="283" font-size="12" class="" text-anchor="start" font-weight="normal">GND</text>
+<text x="52" y="332" font-size="13" class="" text-anchor="start" font-weight="normal">9600 baud, 8N1. Module must be 5 V-compatible; use a preassembled charge-pump module with its specified capacitors.</text>
+<rect x="25" y="366" width="755" height="353" rx="9" class="panel"/>
+<text x="43" y="397" font-size="19" class="" text-anchor="start" font-weight="bold">02   MIDI IN — isolated current loop</text>
+<rect x="48" y="424" width="140" height="144" rx="3" class="part"/>
+<text x="118" y="449" font-size="15" class="" text-anchor="middle" font-weight="bold">J2  DIN-5 IN</text>
+<text x="176" y="480" font-size="14" class="" text-anchor="end" font-weight="normal">4</text>
+<text x="176" y="532" font-size="14" class="" text-anchor="end" font-weight="normal">5</text>
+<text x="60" y="554" font-size="12" class="" text-anchor="start" font-weight="normal">1,2,3: NC</text>
+<rect x="336" y="420" width="192" height="159" rx="3" class="part"/>
+<text x="432" y="446" font-size="17" class="" text-anchor="middle" font-weight="bold">U3  6N137</text>
+<text x="346" y="480" font-size="13" class="" text-anchor="start" font-weight="normal">2 A</text>
+<text x="346" y="532" font-size="13" class="" text-anchor="start" font-weight="normal">3 K</text>
+<text x="516" y="466" font-size="13" class="" text-anchor="end" font-weight="normal">8 VCC</text>
+<text x="516" y="490" font-size="13" class="" text-anchor="end" font-weight="normal">7 EN</text>
+<text x="516" y="519" font-size="13" class="" text-anchor="end" font-weight="normal">6 OUT</text>
+<text x="516" y="550" font-size="13" class="" text-anchor="end" font-weight="normal">5 GND</text>
+<text x="432" y="570" font-size="12" class="" text-anchor="middle" font-weight="normal">1,4: NC</text>
+<polyline class="wire" points="188,475 208,475"/>
+<polyline class="wire" points="208,475 216,475 221,468 231,482 241,468 251,482 261,468 273,475"/>
+<polyline class="wire" points="273,475 336,475"/>
+<text x="240" y="463" font-size="12" class="" text-anchor="middle" font-weight="normal">R1 220Ω</text>
+<polyline class="wire" points="188,527 336,527"/>
+<circle cx="300" cy="475" r="3.5" fill="#17614b"/>
+<circle cx="300" cy="527" r="3.5" fill="#17614b"/>
+<polyline class="wire" points="300,475 300,491"/>
+<polyline class="wire" points="300,511 300,527"/>
+<path d="M291 491 H309 M291 511 L309 511 L300 493 Z" class="part"/>
+<text x="284" y="493" font-size="11" class="" text-anchor="end" font-weight="normal">K</text>
+<text x="284" y="515" font-size="11" class="" text-anchor="end" font-weight="normal">A</text>
+<text x="216" y="552" font-size="12" class="" text-anchor="start" font-weight="normal">D1 1N4148</text>
+<polyline class="wire" points="528,461 568,461 568,435"/>
+<polyline class="wire" points="528,485 568,485 568,461"/>
+<circle cx="568" cy="461" r="3.5" fill="#17614b"/>
+<text x="568" y="425" font-size="13" class="net" text-anchor="middle" font-weight="normal">+5V</text>
+<polyline class="wire" points="528,514 650,514"/>
+<polyline class="wire" points="650,514 675,514"/>
+<text x="680" y="519" font-size="13" class="net" text-anchor="start" font-weight="normal">MIDI_RX</text>
+<circle cx="624" cy="514" r="3.5" fill="#17614b"/>
+<polyline class="wire" points="624,514 624,493"/>
+<path class="wire" d="M624 493 l-6 -6 12 -9 -12 -9 12 -9 -6 -6 V435"/>
+<text x="624" y="425" font-size="13" class="net" text-anchor="middle" font-weight="normal">+5V</text>
+<text x="636" y="474" font-size="12" class="" text-anchor="start" font-weight="normal">R2 1kΩ</text>
+<polyline class="wire" points="528,545 568,545"/>
+<polyline class="wire" points="568,545 568,557 556,557 580,557"/>
+<polyline class="wire" points="560,562 576,562"/>
+<polyline class="wire" points="564,567 572,567"/>
+<polyline class="wire" points="690,560 690,550"/>
+<text x="690" y="545" font-size="13" class="net" text-anchor="middle" font-weight="normal">+5V</text>
+<polyline class="wire" points="677,560 703,560"/>
+<polyline class="wire" points="677,567 703,567"/>
+<polyline class="wire" points="690,567 690,577"/>
+<polyline class="wire" points="690,577 690,589 678,589 702,589"/>
+<polyline class="wire" points="682,594 698,594"/>
+<polyline class="wire" points="686,599 694,599"/>
+<text x="711" y="565" font-size="12" class="" text-anchor="start" font-weight="normal">C1</text>
+<text x="711" y="580" font-size="12" class="" text-anchor="start" font-weight="normal">100nF</text>
+<text x="48" y="615" font-size="13" class="" text-anchor="start" font-weight="normal">Isolation boundary: no connection from DIN IN pin 2 or shell to logic GND.</text>
+<text x="48" y="639" font-size="13" class="" text-anchor="start" font-weight="normal">R1 limits loop current; D1 reverse-protects the LED (cathode to pin 2).</text>
+<text x="48" y="663" font-size="13" class="" text-anchor="start" font-weight="normal">C1 adjacent to U3 pins 8/5; pin 7 high. JP1 at D0: see power/programming note.</text>
+<text x="48" y="687" font-size="13" class="" text-anchor="start" font-weight="normal">Verify the optocoupler threshold and waveform with your actual MIDI source.</text>
+<rect x="795" y="366" width="460" height="196" rx="9" class="panel"/>
+<text x="813" y="397" font-size="19" class="" text-anchor="start" font-weight="bold">03   MIDI OUT — 5 V DIN</text>
+<rect x="1090" y="421" width="139" height="119" rx="3" class="part"/>
+<text x="1159" y="444" font-size="14" class="" text-anchor="middle" font-weight="bold">J3 DIN-5 OUT</text>
+<text x="1103" y="466" font-size="14" class="" text-anchor="start" font-weight="normal">4</text>
+<text x="1103" y="495" font-size="14" class="" text-anchor="start" font-weight="normal">5</text>
+<text x="1103" y="524" font-size="14" class="" text-anchor="start" font-weight="normal">2</text>
+<text x="1218" y="532" font-size="11" class="" text-anchor="end" font-weight="normal">1,3 NC</text>
+<text x="815" y="461" font-size="13" class="net" text-anchor="start" font-weight="normal">+5V</text>
+<polyline class="wire" points="860,461 926,461"/>
+<polyline class="wire" points="926,461 934,461 939,454 949,468 959,454 969,468 979,454 991,461"/>
+<polyline class="wire" points="991,461 1090,461"/>
+<text x="959" y="449" font-size="12" class="" text-anchor="middle" font-weight="normal">R3 220Ω</text>
+<text x="815" y="490" font-size="13" class="net" text-anchor="start" font-weight="normal">MIDI_TX</text>
+<polyline class="wire" points="902,490 926,490"/>
+<polyline class="wire" points="926,490 934,490 939,483 949,497 959,483 969,497 979,483 991,490"/>
+<polyline class="wire" points="991,490 1090,490"/>
+<text x="959" y="478" font-size="12" class="" text-anchor="middle" font-weight="normal">R4 220Ω</text>
+<polyline class="wire" points="1090,519 1040,519"/>
+<polyline class="wire" points="1040,519 1040,531 1028,531 1052,531"/>
+<polyline class="wire" points="1032,536 1048,536"/>
+<polyline class="wire" points="1036,541 1044,541"/>
+<rect x="795" y="575" width="460" height="144" rx="9" class="panel"/>
+<text x="813" y="606" font-size="19" class="" text-anchor="start" font-weight="bold">04   Enable input / power</text>
+<text x="818" y="630" font-size="13" class="net" text-anchor="start" font-weight="normal">IN_ENABLE</text>
+<polyline class="wire" points="920,626 982,626"/>
+<circle cx="982" cy="626" r="4" class="part"/><circle cx="1032" cy="626" r="4" class="part"/>
+<polyline class="wire" points="982,622 1023,607"/>
+<polyline class="wire" points="1032,626 1085,626"/>
+<polyline class="wire" points="1085,626 1085,638 1073,638 1097,638"/>
+<polyline class="wire" points="1077,643 1093,643"/>
+<polyline class="wire" points="1081,648 1089,648"/>
+<text x="1007" y="648" font-size="12" class="" text-anchor="middle" font-weight="normal">SW1</text>
+<text x="815" y="672" font-size="12" class="" text-anchor="start" font-weight="normal">Closed at reset = MIDI IN; open = legacy output only.</text>
+<text x="815" y="694" font-size="12" class="" text-anchor="start" font-weight="normal">Regulated 5 V; logic GND shared with RS-232 only.</text>
+<rect x="25" y="734" width="1230" height="92" rx="7" class="panel"/>
+<text x="45" y="759" font-size="15" class="" text-anchor="start" font-weight="bold">IMPORTANT  •  USB / UART isolation</text>
+<text x="45" y="781" font-size="13" class="" text-anchor="start" font-weight="normal">Fit a removable link (JP1) between MIDI_RX and Nano D0. Open during upload; disconnect MIDI OUT during upload/reset.</text>
+<text x="45" y="803" font-size="13" class="" text-anchor="start" font-weight="normal">Isolate the onboard USB-UART TX path to D0 for reliable MIDI reception (verify board-specific series resistor/link). No RS-232 voltage on Nano pins.</text>
+</svg>
