@@ -83,3 +83,4 @@ def parse_cmd(b):
 
 def record(addr,data):
     return b''.join(bytes([1,(len(data[i:i+256])+2)&255])+ (addr+i).to_bytes(2,'little')+data[i:i+256] for i in range(0,len(data),256))
+
